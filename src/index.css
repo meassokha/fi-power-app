@@ -1,0 +1,69 @@
+:root {
+  --font-heading: 'Manrope', system-ui, 'Segoe UI', sans-serif;
+  --font-body: 'Public Sans', system-ui, 'Segoe UI', sans-serif;
+
+  --color-bg: oklch(98% 0.005 254);
+  --color-surface: oklch(100% 0 0);
+  --color-border: oklch(90% 0.012 254);
+  --color-text: oklch(45% 0.02 254);
+  --color-text-muted: oklch(60% 0.02 254);
+  --color-text-strong: oklch(22% 0.02 254);
+
+  --color-primary: oklch(52% 0.16 254);
+  --color-primary-dark: oklch(38% 0.14 254);
+  --color-primary-light: oklch(94% 0.03 254);
+  --color-teal: oklch(52% 0.16 200);
+
+  --color-success: oklch(58% 0.14 152);
+  --color-success-bg: oklch(94% 0.05 152);
+  --color-warning: oklch(65% 0.15 80);
+  --color-warning-bg: oklch(95% 0.06 80);
+  --color-danger: oklch(55% 0.18 25);
+  --color-danger-bg: oklch(95% 0.05 25);
+
+  --shadow-card: 0 16px 32px -14px oklch(52% 0.16 254 / 0.4);
+  --shadow-panel: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+
+  color-scheme: light;
+  color: var(--color-text);
+  background: var(--color-bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  color: var(--color-text-strong);
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+button {
+  font-family: var(--font-body);
+}
+
+.num {
+  font-family: var(--font-heading);
+  font-variant-numeric: tabular-nums;
+}

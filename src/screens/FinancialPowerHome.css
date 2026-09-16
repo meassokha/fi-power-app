@@ -1,0 +1,225 @@
+.fp-home__header {
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.fp-home__identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fp-home__avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.fp-home__greeting {
+  font-size: 13px;
+  color: var(--color-text);
+}
+
+.fp-home__name {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--color-text-strong);
+}
+
+.fp-home__bell {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.fp-home__body {
+  padding: 20px 24px 0;
+  flex: 1;
+  overflow: hidden auto;
+}
+
+.fp-home__hero {
+  position: relative;
+  border-radius: 22px;
+  padding: 24px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--shadow-card);
+  color: white;
+}
+
+.fp-home__hero-info {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: none;
+  background: rgb(255 255 255 / 0.18);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.fp-home__hero-info:hover {
+  background: rgb(255 255 255 / 0.3);
+}
+
+.fp-home__hero-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.75);
+}
+
+.fp-home__hero-amount {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.fp-home__hero-amount .num {
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1;
+  color: white;
+}
+
+.fp-home__hero-unit {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgb(255 255 255 / 0.8);
+}
+
+.fp-home__hero-copy {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgb(255 255 255 / 0.85);
+  max-width: 280px;
+}
+
+.fp-home__hero-usage {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.fp-home__hero-usage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: rgb(255 255 255 / 0.8);
+}
+
+.fp-home__hero-usage-row .num {
+  font-weight: 700;
+  color: white;
+}
+
+.fp-home__hero-usage-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.25);
+}
+
+.fp-home__hero-usage-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: white;
+}
+
+.fp-home__hero-updated {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  color: rgb(255 255 255 / 0.7);
+  font-size: 11.5px;
+}
+
+.fp-home__active {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fp-home__active-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-strong);
+  font-family: var(--font-heading);
+}
+
+.fp-home__active-item {
+  width: 100%;
+  border-radius: 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
+  color: var(--color-text-muted);
+}
+
+.fp-home__active-item:hover {
+  border-color: var(--color-primary);
+}
+
+.fp-home__active-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.fp-home__active-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-text-strong);
+}
+
+.fp-home__active-meta {
+  font-size: 11.5px;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fp-home__ctas {
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}

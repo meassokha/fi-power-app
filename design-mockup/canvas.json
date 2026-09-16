@@ -1,0 +1,17 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1300, "h": 680 },
+    { "file": "Home.dc.html", "x": 1420, "y": 0, "w": 390, "h": 844 },
+    { "file": "Breakdown.dc.html", "x": 1890, "y": 0, "w": 390, "h": 844 },
+    { "file": "LoanApply.dc.html", "x": 2360, "y": 0, "w": 390, "h": 844 },
+    { "file": "CardApply.dc.html", "x": 2830, "y": 0, "w": 390, "h": 844 }
+  ],
+  "annotations": [
+    { "id": "label-table", "x": 0, "y": -50, "w": 400, "text": "Backend: Customer Whitelist" },
+    { "id": "label-home", "x": 1420, "y": -50, "w": 300, "text": "1 — Financial Power Home" },
+    { "id": "label-breakdown", "x": 1890, "y": -50, "w": 300, "text": "2 — Calculation Breakdown" },
+    { "id": "label-loan", "x": 2360, "y": -50, "w": 300, "text": "3 — Personal Loan Application" },
+    { "id": "label-card", "x": 2830, "y": -50, "w": 300, "text": "4 — Credit Card Application" }
+  ],
+  "launch": { "view": "canvas" }
+}

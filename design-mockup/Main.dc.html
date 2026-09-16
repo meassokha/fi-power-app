@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Public+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Public Sans', system-ui, sans-serif; background: oklch(98% 0.005 254); }
+    a { color: oklch(52% 0.16 254); }
+    a:hover { color: oklch(38% 0.14 254); }
+    .num { font-family: 'Manrope', system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+  </style>
+</helmet>
+
+<div style="width: 1300px; height: 680px; padding: 40px; background: oklch(98% 0.005 254); display: flex; flex-direction: column; gap: 20px;">
+
+  <div style="display: flex; flex-direction: column; gap: 6px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="width: 8px; height: 8px; border-radius: 999px; background: oklch(52% 0.16 254);"></div>
+      <span style="font-family: 'Manrope', system-ui, sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: oklch(52% 0.16 254);">Admin &middot; Backend Data Source</span>
+    </div>
+    <h1 style="margin: 0; font-family: 'Manrope', system-ui, sans-serif; font-weight: 800; font-size: 28px; letter-spacing: -0.02em; color: oklch(22% 0.02 254);">Customer Whitelist</h1>
+    <p style="margin: 0; font-size: 14px; line-height: 1.5; color: oklch(45% 0.02 254); max-width: 760px;">Pre-qualified customers and the underlying figures used to compute each customer's <strong style="color: oklch(22% 0.02 254);">Financial Power</strong> &mdash; the maximum monthly EMI capacity offered for Unsecured Consumer Loan and Credit Card products on the right.</p>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 20px; padding: 10px 14px; background: oklch(100% 0 0); border: 1px solid oklch(90% 0.012 254); border-radius: 10px; width: fit-content;">
+    <span style="font-size: 12px; font-weight: 600; color: oklch(45% 0.02 254);">Min DSCR key:</span>
+    <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 999px; background: oklch(58% 0.14 152);"></span><span style="font-size: 12px; color: oklch(45% 0.02 254);">50% &mdash; most capacity</span></div>
+    <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 999px; background: oklch(52% 0.16 254);"></span><span style="font-size: 12px; color: oklch(45% 0.02 254);">45% &mdash; standard</span></div>
+    <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 999px; background: oklch(65% 0.15 80);"></span><span style="font-size: 12px; color: oklch(45% 0.02 254);">40% &mdash; tighter</span></div>
+  </div>
+
+  <div style="background: oklch(100% 0 0); border: 1px solid oklch(90% 0.012 254); border-radius: 14px; overflow: hidden;">
+
+    <div style="display: grid; grid-template-columns: 100px 150px 110px 100px 130px 130px 140px 90px 100px; gap: 16px; padding: 14px 20px; background: oklch(96% 0.008 254); border-bottom: 1px solid oklch(90% 0.012 254);">
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: oklch(45% 0.02 254);">Customer ID</span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: oklch(45% 0.02 254);">Customer Name</span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: oklch(45% 0.02 254);">Segment</span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: oklch(45% 0.02 254); text-align: right;">Income</span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: oklch(45% 0.02 254); text-align: right;">Obligation &middot; Wing Bank</span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: oklch(45% 0.02 254); text-align: right;">Obligation &middot; Other Banks</span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: oklch(45% 0.02 254); text-align: right;">Total Monthly Installment</span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: oklch(45% 0.02 254); text-align: center;">Min DSCR</span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: oklch(45% 0.02 254); text-align: right;">Rate</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column;">
+
+      <div style="display: grid; grid-template-columns: 100px 150px 110px 100px 130px 130px 140px 90px 100px; gap: 16px; padding: 12px 20px; border-bottom: 1px solid oklch(93% 0.01 254); align-items: center;">
+        <span class="num" style="font-size: 13px; color: oklch(45% 0.02 254);">WB-10231</span>
+        <span style="font-size: 14px; font-weight: 600; color: oklch(22% 0.02 254);">Sok Dara</span>
+        <span style="font-size: 13px; color: oklch(45% 0.02 254);">Salaried</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(22% 0.02 254);">$850</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(45% 0.02 254);">$120</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(45% 0.02 254);">$80</span>
+        <span class="num" style="font-size: 14px; text-align: right; font-weight: 700; color: oklch(22% 0.02 254);">$200</span>
+        <span style="text-align: center;"><span class="num" style="display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: oklch(94% 0.03 254); color: oklch(52% 0.16 254);">45%</span></span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(22% 0.02 254);">18.5%</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 100px 150px 110px 100px 130px 130px 140px 90px 100px; gap: 16px; padding: 12px 20px; border-bottom: 1px solid oklch(93% 0.01 254); align-items: center; background: oklch(96% 0.025 254); position: relative;">
+        <span class="num" style="font-size: 13px; color: oklch(45% 0.02 254);">WB-10456</span>
+        <span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: oklch(22% 0.02 254);">Chan Sopheak <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; color: oklch(52% 0.16 254); background: oklch(100% 0 0); border: 1px solid oklch(85% 0.03 254); padding: 2px 7px; border-radius: 999px; white-space: nowrap;">shown &rarr;</span></span>
+        <span style="font-size: 13px; color: oklch(45% 0.02 254);">Salaried</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(22% 0.02 254);">$1,200</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(45% 0.02 254);">$200</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(45% 0.02 254);">$150</span>
+        <span class="num" style="font-size: 14px; text-align: right; font-weight: 700; color: oklch(22% 0.02 254);">$350</span>
+        <span style="text-align: center;"><span class="num" style="display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: oklch(94% 0.05 152); color: oklch(58% 0.14 152);">50%</span></span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(22% 0.02 254);">16.0%</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 100px 150px 110px 100px 130px 130px 140px 90px 100px; gap: 16px; padding: 12px 20px; border-bottom: 1px solid oklch(93% 0.01 254); align-items: center;">
+        <span class="num" style="font-size: 13px; color: oklch(45% 0.02 254);">WB-10789</span>
+        <span style="font-size: 14px; font-weight: 600; color: oklch(22% 0.02 254);">Ly Chenda</span>
+        <span style="font-size: 13px; color: oklch(45% 0.02 254);">Self-Employed</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(22% 0.02 254);">$600</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(45% 0.02 254);">$50</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(45% 0.02 254);">$0</span>
+        <span class="num" style="font-size: 14px; text-align: right; font-weight: 700; color: oklch(22% 0.02 254);">$50</span>
+        <span style="text-align: center;"><span class="num" style="display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: oklch(95% 0.06 80); color: oklch(65% 0.15 80);">40%</span></span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(22% 0.02 254);">22.0%</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 100px 150px 110px 100px 130px 130px 140px 90px 100px; gap: 16px; padding: 12px 20px; border-bottom: 1px solid oklch(93% 0.01 254); align-items: center;">
+        <span class="num" style="font-size: 13px; color: oklch(45% 0.02 254);">WB-11024</span>
+        <span style="font-size: 14px; font-weight: 600; color: oklch(22% 0.02 254);">Heng Vibol</span>
+        <span style="font-size: 13px; color: oklch(45% 0.02 254);">SME Owner</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(22% 0.02 254);">$2,500</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(45% 0.02 254);">$400</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(45% 0.02 254);">$300</span>
+        <span class="num" style="font-size: 14px; text-align: right; font-weight: 700; color: oklch(22% 0.02 254);">$700</span>
+        <span style="text-align: center;"><span class="num" style="display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: oklch(94% 0.05 152); color: oklch(58% 0.14 152);">50%</span></span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(22% 0.02 254);">15.0%</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 100px 150px 110px 100px 130px 130px 140px 90px 100px; gap: 16px; padding: 12px 20px; border-bottom: 1px solid oklch(93% 0.01 254); align-items: center;">
+        <span class="num" style="font-size: 13px; color: oklch(45% 0.02 254);">WB-11390</span>
+        <span style="font-size: 14px; font-weight: 600; color: oklch(22% 0.02 254);">Pich Sreymom</span>
+        <span style="font-size: 13px; color: oklch(45% 0.02 254);">Salaried</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(22% 0.02 254);">$950</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(45% 0.02 254);">$0</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(45% 0.02 254);">$120</span>
+        <span class="num" style="font-size: 14px; text-align: right; font-weight: 700; color: oklch(22% 0.02 254);">$120</span>
+        <span style="text-align: center;"><span class="num" style="display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: oklch(94% 0.03 254); color: oklch(52% 0.16 254);">45%</span></span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(22% 0.02 254);">19.0%</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 100px 150px 110px 100px 130px 130px 140px 90px 100px; gap: 16px; padding: 12px 20px; border-bottom: 1px solid oklch(93% 0.01 254); align-items: center;">
+        <span class="num" style="font-size: 13px; color: oklch(45% 0.02 254);">WB-11587</span>
+        <span style="font-size: 14px; font-weight: 600; color: oklch(22% 0.02 254);">Ros Pisey</span>
+        <span style="font-size: 13px; color: oklch(45% 0.02 254);">Government</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(22% 0.02 254);">$1,800</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(45% 0.02 254);">$300</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(45% 0.02 254);">$250</span>
+        <span class="num" style="font-size: 14px; text-align: right; font-weight: 700; color: oklch(22% 0.02 254);">$550</span>
+        <span style="text-align: center;"><span class="num" style="display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: oklch(94% 0.05 152); color: oklch(58% 0.14 152);">50%</span></span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(22% 0.02 254);">17.0%</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 100px 150px 110px 100px 130px 130px 140px 90px 100px; gap: 16px; padding: 12px 20px; border-bottom: 1px solid oklch(93% 0.01 254); align-items: center;">
+        <span class="num" style="font-size: 13px; color: oklch(45% 0.02 254);">WB-11802</span>
+        <span style="font-size: 14px; font-weight: 600; color: oklch(22% 0.02 254);">Keo Sovannak</span>
+        <span style="font-size: 13px; color: oklch(45% 0.02 254);">Self-Employed</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(22% 0.02 254);">$1,100</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(45% 0.02 254);">$180</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(45% 0.02 254);">$90</span>
+        <span class="num" style="font-size: 14px; text-align: right; font-weight: 700; color: oklch(22% 0.02 254);">$270</span>
+        <span style="text-align: center;"><span class="num" style="display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: oklch(94% 0.03 254); color: oklch(52% 0.16 254);">45%</span></span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(22% 0.02 254);">20.0%</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 100px 150px 110px 100px 130px 130px 140px 90px 100px; gap: 16px; padding: 12px 20px; align-items: center;">
+        <span class="num" style="font-size: 13px; color: oklch(45% 0.02 254);">WB-12015</span>
+        <span style="font-size: 14px; font-weight: 600; color: oklch(22% 0.02 254);">Meas Kunthea</span>
+        <span style="font-size: 13px; color: oklch(45% 0.02 254);">SME Owner</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(22% 0.02 254);">$3,000</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(45% 0.02 254);">$500</span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(45% 0.02 254);">$400</span>
+        <span class="num" style="font-size: 14px; text-align: right; font-weight: 700; color: oklch(22% 0.02 254);">$900</span>
+        <span style="text-align: center;"><span class="num" style="display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: oklch(94% 0.05 152); color: oklch(58% 0.14 152);">50%</span></span>
+        <span class="num" style="font-size: 14px; text-align: right; color: oklch(22% 0.02 254);">14.0%</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Public+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: transparent; font-family: 'Public Sans', system-ui, sans-serif; }
+    a { color: oklch(52% 0.16 254); }
+    a:hover { color: oklch(38% 0.14 254); }
+    .num { font-family: 'Manrope', system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+    .btn { border: none; cursor: pointer; font-family: 'Public Sans', system-ui, sans-serif; }
+  </style>
+</helmet>
+
+<div style="width: 390px; height: 844px; border-radius: 32px; overflow: hidden; background: oklch(98% 0.005 254); box-shadow: 0 24px 60px -20px oklch(22% 0.02 254 / 0.35); display: flex; flex-direction: column; position: relative;">
+
+  <div style="height: 40px; flex-shrink: 0;"></div>
+
+  <div style="padding: 0 24px 16px; display: flex; align-items: center; gap: 14px; flex-shrink: 0;">
+    <div style="width: 36px; height: 36px; border-radius: 999px; background: oklch(100% 0 0); border: 1px solid oklch(90% 0.012 254); display: flex; align-items: center; justify-content: center;">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="oklch(22% 0.02 254)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </div>
+    <div>
+      <div style="font-size: 16px; font-weight: 800; color: oklch(22% 0.02 254); font-family: 'Manrope', system-ui, sans-serif;">Your Financial Power</div>
+      <div style="font-size: 12.5px; color: oklch(45% 0.02 254);">How we calculated it</div>
+    </div>
+  </div>
+
+  <div style="padding: 4px 24px 0; flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 10px;">
+
+    <div style="border-radius: 14px; background: oklch(100% 0 0); border: 1px solid oklch(90% 0.012 254); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <div style="font-size: 12px; color: oklch(45% 0.02 254);">Monthly income</div>
+        <div class="num" style="font-size: 18px; font-weight: 800; color: oklch(22% 0.02 254);">$1,200</div>
+      </div>
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="oklch(52% 0.16 254)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8h20"/><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 15h4"/></svg>
+    </div>
+
+    <div style="display: flex; justify-content: center;">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="oklch(70% 0.01 254)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v10"/><path d="M8 11l4 4 4-4"/></svg>
+    </div>
+
+    <div style="border-radius: 14px; background: oklch(100% 0 0); border: 1px solid oklch(90% 0.012 254); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <div style="font-size: 12px; color: oklch(45% 0.02 254);">&times; Min DSCR threshold &rarr; max allowed obligation</div>
+        <div class="num" style="font-size: 18px; font-weight: 800; color: oklch(22% 0.02 254);">$600</div>
+      </div>
+      <span class="num" style="padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: oklch(94% 0.05 152); color: oklch(58% 0.14 152); white-space: nowrap;">50% DSCR</span>
+    </div>
+
+    <div style="display: flex; justify-content: center;">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="oklch(70% 0.01 254)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v10"/><path d="M8 11l4 4 4-4"/></svg>
+    </div>
+
+    <div style="border-radius: 14px; background: oklch(100% 0 0); border: 1px solid oklch(90% 0.012 254); padding: 14px 16px;">
+      <div style="font-size: 12px; color: oklch(45% 0.02 254); margin-bottom: 8px;">&minus; Existing monthly obligations</div>
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+        <span style="font-size: 13px; color: oklch(22% 0.02 254);">Wing Bank</span>
+        <span class="num" style="font-size: 13px; font-weight: 600; color: oklch(22% 0.02 254);">$200</span>
+      </div>
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <span style="font-size: 13px; color: oklch(22% 0.02 254);">Other banks</span>
+        <span class="num" style="font-size: 13px; font-weight: 600; color: oklch(22% 0.02 254);">$150</span>
+      </div>
+    </div>
+
+    <div style="border-radius: 16px; background: linear-gradient(135deg, oklch(52% 0.16 254), oklch(38% 0.14 254)); padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 14px 28px -14px oklch(52% 0.16 254 / 0.55);">
+      <span style="font-size: 13.5px; font-weight: 700; color: oklch(100% 0 0 / 0.85);">= Your Financial Power</span>
+      <span class="num" style="font-size: 22px; font-weight: 800; color: oklch(100% 0 0);">$250/mo</span>
+    </div>
+
+    <div style="display: flex; gap: 8px; padding: 10px 12px; background: oklch(94% 0.03 254); border-radius: 10px; margin-top: 2px;">
+      <svg viewBox="0 0 24 24" width="14" height="14" style="flex-shrink: 0; margin-top: 2px;" fill="none" stroke="oklch(52% 0.16 254)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5"/><path d="M12 8h.01"/></svg>
+      <span style="font-size: 11.5px; line-height: 1.5; color: oklch(38% 0.14 254);">Indicative rate of <strong>16.0% APR</strong> is used below to translate this into a maximum loan amount or credit limit.</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 2px;">
+      <div style="border-radius: 12px; border: 1px solid oklch(90% 0.012 254); padding: 10px 12px;">
+        <div style="font-size: 11px; color: oklch(45% 0.02 254);">Est. max loan</div>
+        <div class="num" style="font-size: 15px; font-weight: 800; color: oklch(22% 0.02 254);">~$7,100</div>
+        <div style="font-size: 10px; color: oklch(60% 0.02 254);">over 36 months</div>
+      </div>
+      <div style="border-radius: 12px; border: 1px solid oklch(90% 0.012 254); padding: 10px 12px;">
+        <div style="font-size: 11px; color: oklch(45% 0.02 254);">Est. credit limit</div>
+        <div class="num" style="font-size: 15px; font-weight: 800; color: oklch(22% 0.02 254);">~$1,200</div>
+        <div style="font-size: 10px; color: oklch(60% 0.02 254);">revolving</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding: 14px 24px 24px; flex-shrink: 0;">
+    <button type="button" class="btn" style="width: 100%; height: 52px; border-radius: 14px; background: oklch(52% 0.16 254); color: oklch(100% 0 0); font-size: 15px; font-weight: 700;">Continue to Apply</button>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

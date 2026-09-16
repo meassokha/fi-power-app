@@ -1,0 +1,117 @@
+.phone-frame {
+  position: relative;
+  width: 100%;
+}
+
+.phone-frame__notch,
+.phone-frame__button {
+  display: none;
+}
+
+.phone-shell {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.phone-shell__safe-top {
+  height: max(env(safe-area-inset-top, 0px), 40px);
+  flex-shrink: 0;
+}
+
+.phone-shell__home-indicator {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 134px;
+  height: 5px;
+  border-radius: 999px;
+  background: oklch(22% 0.02 254 / 0.35);
+  pointer-events: none;
+  z-index: 5;
+}
+
+@media (min-width: 431px) {
+  .phone-frame {
+    box-sizing: border-box;
+    width: 418px;
+    /* Shrink to fit whatever height the workspace actually has instead of
+       forcing the natural size and forcing a scrollbar on shorter screens. */
+    height: min(872px, calc(100vh - 150px));
+    padding: 14px;
+    margin: 12px auto;
+    border-radius: 46px;
+    background: linear-gradient(160deg, #3a3a3e, #0a0a0c);
+    box-shadow:
+      0 30px 70px -25px rgb(0 0 0 / 0.55),
+      inset 0 0 0 2px rgb(255 255 255 / 0.08);
+  }
+
+  .phone-frame__notch {
+    display: block;
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 26px;
+    background: #0a0a0c;
+    border-radius: 0 0 16px 16px;
+    z-index: 2;
+  }
+
+  .phone-frame__button {
+    display: block;
+    position: absolute;
+    background: #1c1c1f;
+  }
+
+  .phone-frame__button--action {
+    left: -2px;
+    top: 108px;
+    width: 3px;
+    height: 30px;
+    border-radius: 2px 0 0 2px;
+  }
+
+  .phone-frame__button--volume-up {
+    left: -2px;
+    top: 158px;
+    width: 3px;
+    height: 46px;
+    border-radius: 2px 0 0 2px;
+  }
+
+  .phone-frame__button--volume-down {
+    left: -2px;
+    top: 212px;
+    width: 3px;
+    height: 46px;
+    border-radius: 2px 0 0 2px;
+  }
+
+  .phone-frame__button--power {
+    right: -2px;
+    top: 170px;
+    width: 3px;
+    height: 64px;
+    border-radius: 0 2px 2px 0;
+  }
+
+  .phone-shell {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    min-height: 0;
+    margin: 0;
+    border-radius: 32px;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.4);
+  }
+}

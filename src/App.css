@@ -1,0 +1,125 @@
+.app-shell {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-shell__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px clamp(20px, 4vw, 40px);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  flex-shrink: 0;
+}
+
+.app-shell__brand {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--color-text-strong);
+}
+
+.app-shell__nav-actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-shell__lms-btn {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-strong);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.app-shell__lms-btn:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.app-shell__settings-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.app-shell__settings-btn:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.app-shell__content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell__workspace {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 430px;
+  align-items: stretch;
+  gap: 24px;
+  padding: 24px clamp(20px, 4vw, 40px) 24px 0;
+}
+
+.app-shell__panel {
+  min-height: 0;
+  overflow: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+}
+
+.app-shell__preview {
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+@media (max-width: 960px) {
+  .app-shell {
+    height: auto;
+    overflow: visible;
+  }
+
+  .app-shell__content {
+    overflow: visible;
+  }
+
+  .app-shell__workspace {
+    grid-template-columns: 1fr;
+    padding: 24px clamp(20px, 4vw, 40px) 40px;
+  }
+
+  .app-shell__panel {
+    overflow: visible;
+  }
+
+  .app-shell__preview {
+    overflow: visible;
+  }
+}
