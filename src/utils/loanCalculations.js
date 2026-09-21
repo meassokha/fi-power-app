@@ -1,13 +1,6 @@
 import { addMonthsToDate, startOfToday } from './dates'
 
 export const MIN_LOAN_AMOUNT = 530
-export const MAX_LOAN_AMOUNT = 22000
-
-export const DEFAULT_LOAN_SETTINGS = {
-  ppiRate: 0.002,
-  processingFeeWithPpi: 0.02,
-  processingFeeWithoutPpi: 0.05,
-}
 
 // Monthly installment for a given principal (standard reducing-balance EMI).
 export function computeEmi(principal, annualRate, months) {
@@ -68,32 +61,39 @@ export function computeLoanScheduleDates(disbursementDate, tenor, monthlyInstall
   return { maturityDate, nextPaymentDate: null, nextPaymentAmount: 0 }
 }
 
-export function computeLoanOffer({ financialPower, annualRate, months, ppiSelected, settings, loanAmount }) {
-  const rawMaxLoan = computeMaxPrincipalForEmi(financialPower, annualRate, months)
-  const maxLoan = Math.min(Math.floor(rawMaxLoan / 10) * 10, MAX_LOAN_AMOUNT)
-  const eligible = maxLoan >= MIN_LOAN_AMOUNT
+// The max a customer can borrow is the smallest of three independent
+// ceilings: what their remaining Financial Power can service (EMI-based),
+// whatever headroom is left under the loan cap once their OTHER active
+// loans are counted against it, and whatever headroom is left under the
+// combined master cap once every active product (loans + cards) is counted.
+export function computeLoanEligibility({
+  remainingFinancialPower,
+  annualRate,
+  months,
+  existingLoanExposure,
+  existingTotalExposure,
+  settings,
+}) {
+  const candidates = [
+    { value: computeMaxPrincipalForEmi(remainingFinancialPower, annualRate, months), label: 'your Financial Power' },
+    { value: Math.max(settings.maxLoanLimit - existingLoanExposure, 0), label: 'the max loan limit' },
+    { value: Math.max(settings.masterCappedLimit - existingTotalExposure, 0), label: 'the master capped limit' },
+  ]
+  const binding = candidates.reduce((min, c) => (c.value < min.value ? c : min))
+  const maxLoan = Math.max(Math.floor(binding.value / 10) * 10, 0)
 
-  if (!eligible) {
-    return { eligible: false, maxLoan }
-  }
+  return { eligible: maxLoan >= MIN_LOAN_AMOUNT, maxLoan, cappedBy: binding.label }
+}
 
-  const amount = Math.min(Math.max(loanAmount ?? maxLoan, MIN_LOAN_AMOUNT), maxLoan)
-  const monthlyInstallment = computeEmi(amount, annualRate, months)
+// Pricing for a specific loan amount already clamped to an eligible range —
+// call computeLoanEligibility first to know that range.
+export function computeLoanOffer({ annualRate, months, ppiSelected, settings, loanAmount }) {
+  const monthlyInstallment = computeEmi(loanAmount, annualRate, months)
   const totalRepayable = monthlyInstallment * months
   const processingFeeRate = ppiSelected ? settings.processingFeeWithPpi : settings.processingFeeWithoutPpi
-  const processingFee = amount * processingFeeRate
-  const ppiTotal = ppiSelected ? computeTotalPpi(amount, annualRate, months, settings.ppiRate) : 0
-  const cashOnHand = amount - processingFee - ppiTotal
+  const processingFee = loanAmount * processingFeeRate
+  const ppiTotal = ppiSelected ? computeTotalPpi(loanAmount, annualRate, months, settings.ppiRate) : 0
+  const cashOnHand = loanAmount - processingFee - ppiTotal
 
-  return {
-    eligible: true,
-    maxLoan,
-    amount,
-    monthlyInstallment,
-    totalRepayable,
-    processingFeeRate,
-    processingFee,
-    ppiTotal,
-    cashOnHand,
-  }
+  return { amount: loanAmount, monthlyInstallment, totalRepayable, processingFeeRate, processingFee, ppiTotal, cashOnHand }
 }

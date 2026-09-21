@@ -1,0 +1,63 @@
+.card-visual {
+  border-radius: 20px;
+  padding: 22px;
+  height: 168px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-teal));
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 16px 32px -14px oklch(38% 0.14 254 / 0.55);
+  position: relative;
+  overflow: hidden;
+  color: white;
+}
+
+.card-visual__glow {
+  position: absolute;
+  right: -30px;
+  top: -30px;
+  width: 140px;
+  height: 140px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.07);
+}
+
+.card-visual__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.card-visual__wordmark {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+}
+
+.card-visual__tier-pill {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: white;
+  background: rgb(255 255 255 / 0.15);
+}
+
+.card-visual__number {
+  font-size: 18px;
+  letter-spacing: 0.1em;
+  color: rgb(255 255 255 / 0.9);
+  position: relative;
+}
+
+.card-visual__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  font-size: 12px;
+  color: rgb(255 255 255 / 0.85);
+  letter-spacing: 0.03em;
+}

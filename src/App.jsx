@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import './styles/shared.css'
 import WhitelistPage from './pages/WhitelistPage'
@@ -11,21 +11,46 @@ import FinancialPowerBreakdown from './screens/FinancialPowerBreakdown'
 import LoanApplication from './screens/LoanApplication'
 import CreditCardApplication from './screens/CreditCardApplication'
 import LoanAccount from './screens/LoanAccount'
+import CardAccount from './screens/CardAccount'
+import ActiveProducts from './screens/ActiveProducts'
 import { defaultSelectedCustomerId, initialCustomers } from './data/customers'
 import { nextCustomerId, withDerivedFields } from './utils/customerRules'
-import { DEFAULT_LOAN_SETTINGS } from './utils/loanCalculations'
-import { nextApplicationId } from './utils/applications'
+import { DEFAULT_SETTINGS } from './utils/settings'
+import { exposureByType, monthlyCommitment, nextApplicationId, totalExposure } from './utils/applications'
 import { todayIsoDate } from './utils/dates'
+
+const SETTINGS_STORAGE_KEY = 'financePower.settings'
+
+function loadStoredSettings() {
+  try {
+    const stored = localStorage.getItem(SETTINGS_STORAGE_KEY)
+    return stored ? { ...DEFAULT_SETTINGS, ...JSON.parse(stored) } : DEFAULT_SETTINGS
+  } catch {
+    return DEFAULT_SETTINGS
+  }
+}
 
 function App() {
   const [page, setPage] = useState('main')
   const [customers, setCustomers] = useState(initialCustomers)
   const [selectedCustomerId, setSelectedCustomerId] = useState(defaultSelectedCustomerId)
   const [screen, setScreen] = useState('home')
-  const [loanSettings, setLoanSettings] = useState(DEFAULT_LOAN_SETTINGS)
+  const [settings, setSettings] = useState(loadStoredSettings)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [applications, setApplications] = useState([])
   const [viewingLoanApplicationId, setViewingLoanApplicationId] = useState(null)
+  const [viewingCardApplicationId, setViewingCardApplicationId] = useState(null)
+  const [pendingLoanAmount, setPendingLoanAmount] = useState(null)
+  const [pendingCardAmount, setPendingCardAmount] = useState(null)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings))
+    } catch {
+      // Ignore write failures (private browsing, storage disabled, etc.) —
+      // the settings still work for the rest of this session.
+    }
+  }, [settings])
 
   const selectedCustomer = useMemo(() => {
     const raw = customers.find((c) => c.id === selectedCustomerId) ?? customers[0]
@@ -37,18 +62,48 @@ function App() {
     [applications, selectedCustomer.id],
   )
 
+  // What's actually left to underwrite a NEW application against: monthly
+  // capacity (EMI-based) minus what active products already commit, plus
+  // the dollar exposure (principal/limit) those same products already hold —
+  // tracked per product type (against that product's own cap) and combined
+  // (against the master cap).
+  const remainingFinancialPower = Math.max(
+    Math.floor(selectedCustomer.financialPower - activeApplications.reduce((sum, app) => sum + monthlyCommitment(app), 0)),
+    0,
+  )
+  const existingLoanExposure = exposureByType(applications, selectedCustomer.id, 'loan')
+  const existingCardExposure = exposureByType(applications, selectedCustomer.id, 'card')
+  const existingTotalExposure = totalExposure(applications, selectedCustomer.id)
+
   const viewingLoanApplication = applications.find((a) => a.id === viewingLoanApplicationId) ?? null
+  const viewingCardApplication = applications.find((a) => a.id === viewingCardApplicationId) ?? null
+
+  function goHome() {
+    setPendingLoanAmount(null)
+    setPendingCardAmount(null)
+    setScreen('home')
+  }
 
   function handleSelectCustomer(id) {
     setSelectedCustomerId(id)
-    setScreen('home')
+    goHome()
   }
 
   function handleAddCustomer(fields) {
     const id = nextCustomerId(customers)
     setCustomers((prev) => [...prev, { id, ...fields }])
     setSelectedCustomerId(id)
-    setScreen('home')
+    goHome()
+  }
+
+  function handleGoToLoan(amount) {
+    setPendingLoanAmount(amount)
+    setScreen('loan')
+  }
+
+  function handleGoToCard(amount) {
+    setPendingCardAmount(amount)
+    setScreen('card')
   }
 
   function handleApply(type, fields) {
@@ -79,7 +134,12 @@ function App() {
     setScreen('loan-account')
   }
 
-  function handlePayoffLoan(applicationId) {
+  function handleViewCard(app) {
+    setViewingCardApplicationId(app.id)
+    setScreen('card-account')
+  }
+
+  function handleCloseApplication(applicationId) {
     setApplications((prev) => prev.map((a) => (a.id === applicationId ? { ...a, status: 'closed' } : a)))
   }
 
@@ -105,8 +165,8 @@ function App() {
           </button>
           {isSettingsOpen && (
             <SettingsPanel
-              settings={loanSettings}
-              onChange={setLoanSettings}
+              settings={settings}
+              onChange={setSettings}
               onClose={() => setIsSettingsOpen(false)}
             />
           )}
@@ -139,30 +199,58 @@ function App() {
                 {screen === 'home' && (
                   <FinancialPowerHome
                     customer={selectedCustomer}
+                    remainingFinancialPower={remainingFinancialPower}
+                    existingLoanExposure={existingLoanExposure}
+                    existingCardExposure={existingCardExposure}
+                    existingTotalExposure={existingTotalExposure}
+                    settings={settings}
                     activeApplications={activeApplications}
                     onNavigate={setScreen}
+                    onGoToLoan={handleGoToLoan}
+                    onGoToCard={handleGoToCard}
+                  />
+                )}
+                {screen === 'active-products' && (
+                  <ActiveProducts
+                    activeApplications={activeApplications}
+                    onBack={goHome}
                     onViewLoan={handleViewLoan}
+                    onViewCard={handleViewCard}
                   />
                 )}
                 {screen === 'breakdown' && (
                   <FinancialPowerBreakdown
                     customer={selectedCustomer}
-                    onBack={() => setScreen('home')}
+                    remainingFinancialPower={remainingFinancialPower}
+                    existingLoanExposure={existingLoanExposure}
+                    existingCardExposure={existingCardExposure}
+                    existingTotalExposure={existingTotalExposure}
+                    settings={settings}
+                    onBack={goHome}
                     onNavigate={setScreen}
                   />
                 )}
                 {screen === 'loan' && (
                   <LoanApplication
                     customer={selectedCustomer}
-                    settings={loanSettings}
-                    onBack={() => setScreen('home')}
+                    remainingFinancialPower={remainingFinancialPower}
+                    existingLoanExposure={existingLoanExposure}
+                    existingTotalExposure={existingTotalExposure}
+                    settings={settings}
+                    initialAmount={pendingLoanAmount}
+                    onBack={goHome}
                     onApply={(fields) => handleApply('loan', fields)}
                   />
                 )}
                 {screen === 'card' && (
                   <CreditCardApplication
                     customer={selectedCustomer}
-                    onBack={() => setScreen('home')}
+                    remainingFinancialPower={remainingFinancialPower}
+                    existingCardExposure={existingCardExposure}
+                    existingTotalExposure={existingTotalExposure}
+                    settings={settings}
+                    initialAmount={pendingCardAmount}
+                    onBack={goHome}
                     onApply={(fields) => handleApply('card', fields)}
                   />
                 )}
@@ -170,8 +258,16 @@ function App() {
                   <LoanAccount
                     application={viewingLoanApplication}
                     customer={selectedCustomer}
-                    onBack={() => setScreen('home')}
-                    onPayoff={handlePayoffLoan}
+                    onBack={goHome}
+                    onPayoff={handleCloseApplication}
+                  />
+                )}
+                {screen === 'card-account' && viewingCardApplication && (
+                  <CardAccount
+                    application={viewingCardApplication}
+                    customer={selectedCustomer}
+                    onBack={goHome}
+                    onClose={handleCloseApplication}
                   />
                 )}
               </PhoneShell>

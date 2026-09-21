@@ -1,44 +1,48 @@
 import { useMemo, useState } from 'react'
 import ScreenHeader from '../components/ScreenHeader'
 import { CheckIcon } from '../components/icons'
-import {
-  MAX_LOAN_AMOUNT,
-  MIN_LOAN_AMOUNT,
-  computeLoanOffer,
-  computeMaxPrincipalForEmi,
-} from '../utils/loanCalculations'
+import { MIN_LOAN_AMOUNT, computeLoanEligibility, computeLoanOffer } from '../utils/loanCalculations'
 import './LoanApplication.css'
 
 const TENORS = [6, 12, 24, 36]
 
-export default function LoanApplication({ customer, settings, onBack, onApply }) {
+export default function LoanApplication({
+  customer,
+  remainingFinancialPower,
+  existingLoanExposure,
+  existingTotalExposure,
+  settings,
+  initialAmount,
+  onBack,
+  onApply,
+}) {
   const [tenor, setTenor] = useState(36)
   const [ppiSelected, setPpiSelected] = useState(false)
-  const [amountOverride, setAmountOverride] = useState(null)
+  const [amountOverride, setAmountOverride] = useState(() => initialAmount ?? null)
   const [submitted, setSubmitted] = useState(false)
 
-  const maxLoan = useMemo(() => {
-    const raw = computeMaxPrincipalForEmi(customer.financialPower, customer.interestRate, tenor)
-    return Math.min(Math.floor(raw / 10) * 10, MAX_LOAN_AMOUNT)
-  }, [customer.financialPower, customer.interestRate, tenor])
+  const { eligible, maxLoan, cappedBy } = useMemo(
+    () =>
+      computeLoanEligibility({
+        remainingFinancialPower,
+        annualRate: customer.interestRate,
+        months: tenor,
+        existingLoanExposure,
+        existingTotalExposure,
+        settings,
+      }),
+    [remainingFinancialPower, customer.interestRate, tenor, existingLoanExposure, existingTotalExposure, settings],
+  )
 
-  const eligible = maxLoan >= MIN_LOAN_AMOUNT
   const loanAmount = Math.min(amountOverride ?? maxLoan, maxLoan)
 
   const offer = useMemo(() => {
     if (!eligible) return null
-    return computeLoanOffer({
-      financialPower: customer.financialPower,
-      annualRate: customer.interestRate,
-      months: tenor,
-      ppiSelected,
-      settings,
-      loanAmount,
-    })
-  }, [eligible, loanAmount, customer.financialPower, customer.interestRate, tenor, ppiSelected, settings])
+    return computeLoanOffer({ annualRate: customer.interestRate, months: tenor, ppiSelected, settings, loanAmount })
+  }, [eligible, loanAmount, customer.interestRate, tenor, ppiSelected, settings])
 
   const sliderPct = eligible ? ((loanAmount - MIN_LOAN_AMOUNT) / Math.max(maxLoan - MIN_LOAN_AMOUNT, 1)) * 100 : 0
-  const capacityUsedPct = offer ? Math.min((offer.monthlyInstallment / customer.financialPower) * 100, 100) : 0
+  const capacityUsedPct = offer ? Math.min((offer.monthlyInstallment / remainingFinancialPower) * 100, 100) : 0
 
   function handleApply() {
     onApply({ amount: loanAmount, tenor, monthlyInstallment: offer.monthlyInstallment })
@@ -97,8 +101,9 @@ export default function LoanApplication({ customer, settings, onBack, onApply })
           <div className="loan-apply__ineligible-card">
             <div className="loan-apply__ineligible-title">You are not eligible for the loan</div>
             <p className="loan-apply__ineligible-copy">
-              Your Financial Power of ${customer.financialPower}/mo doesn&apos;t reach the minimum
-              loan amount (${MIN_LOAN_AMOUNT}) at a {tenor}-month tenor. Try a longer tenor below.
+              Your remaining Financial Power of ${remainingFinancialPower}/mo doesn&apos;t reach
+              the minimum loan amount (${MIN_LOAN_AMOUNT}) at a {tenor}-month tenor. Try a longer
+              tenor below.
             </p>
           </div>
           {tenorPicker}
@@ -126,7 +131,7 @@ export default function LoanApplication({ customer, settings, onBack, onApply })
                 <span className="num">${MIN_LOAN_AMOUNT.toLocaleString()}</span>
                 <span className="num">${maxLoan.toLocaleString()} max</span>
               </div>
-              <div className="loan-apply__slider-caption">Capped by your Financial Power</div>
+              <div className="loan-apply__slider-caption">Capped by {cappedBy}</div>
             </div>
 
             {tenorPicker}
@@ -187,9 +192,9 @@ export default function LoanApplication({ customer, settings, onBack, onApply })
               <div className="loan-apply__divider" />
               <div>
                 <div className="loan-apply__capacity-row">
-                  <span>Financial Power used</span>
+                  <span>Remaining capacity used</span>
                   <span className="num">
-                    ${offer.monthlyInstallment.toFixed(0)} of ${customer.financialPower}
+                    ${offer.monthlyInstallment.toFixed(0)} of ${remainingFinancialPower}
                   </span>
                 </div>
                 <div className="loan-apply__capacity-track">

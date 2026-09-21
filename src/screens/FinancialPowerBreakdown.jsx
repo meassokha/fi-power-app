@@ -1,14 +1,35 @@
 import ScreenHeader from '../components/ScreenHeader'
 import { ChevronDownIcon, InfoIcon } from '../components/icons'
-import { MAX_LOAN_AMOUNT, MIN_LOAN_AMOUNT, computeMaxPrincipalForEmi } from '../utils/loanCalculations'
+import { computeLoanEligibility } from '../utils/loanCalculations'
+import { computeCardEligibility } from '../utils/creditCardCalculations'
 import './FinancialPowerBreakdown.css'
 
 const REFERENCE_TENOR = 36
 
-export default function FinancialPowerBreakdown({ customer, onBack, onNavigate }) {
-  const rawMaxLoan = computeMaxPrincipalForEmi(customer.financialPower, customer.interestRate, REFERENCE_TENOR)
-  const maxLoan = Math.min(Math.floor(rawMaxLoan / 10) * 10, MAX_LOAN_AMOUNT)
-  const loanEligible = maxLoan >= MIN_LOAN_AMOUNT
+export default function FinancialPowerBreakdown({
+  customer,
+  remainingFinancialPower,
+  existingLoanExposure,
+  existingCardExposure,
+  existingTotalExposure,
+  settings,
+  onBack,
+  onNavigate,
+}) {
+  const { eligible: loanEligible, maxLoan } = computeLoanEligibility({
+    remainingFinancialPower,
+    annualRate: customer.interestRate,
+    months: REFERENCE_TENOR,
+    existingLoanExposure,
+    existingTotalExposure,
+    settings,
+  })
+  const { eligible: cardEligible, limit: maxCardLimit } = computeCardEligibility({
+    remainingFinancialPower,
+    existingCardExposure,
+    existingTotalExposure,
+    settings,
+  })
 
   return (
     <>
@@ -75,7 +96,9 @@ export default function FinancialPowerBreakdown({ customer, onBack, onNavigate }
           </div>
           <div className="card">
             <div className="fp-breakdown__estimate-label">Est. credit limit</div>
-            <div className="num fp-breakdown__estimate-value">~$1,200</div>
+            <div className="num fp-breakdown__estimate-value">
+              {cardEligible ? `$${maxCardLimit.toLocaleString()}` : 'Not eligible'}
+            </div>
             <div className="fp-breakdown__estimate-caption">revolving</div>
           </div>
         </div>

@@ -1,24 +1,32 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import ScreenHeader from '../components/ScreenHeader'
+import CardVisual from '../components/CardVisual'
 import { CheckIcon } from '../components/icons'
-import {
-  CREDIT_CARD_INTEREST_RATE,
-  MIN_CREDIT_LIMIT,
-  computeCreditLimit,
-} from '../utils/creditCardCalculations'
+import { CREDIT_CARD_INTEREST_RATE, MIN_CREDIT_LIMIT, computeCardEligibility } from '../utils/creditCardCalculations'
 import './CreditCardApplication.css'
 
-export default function CreditCardApplication({ customer, onBack, onApply }) {
-  const creditLimit = computeCreditLimit(customer.financialPower)
-  const eligible = creditLimit >= MIN_CREDIT_LIMIT
+export default function CreditCardApplication({
+  customer,
+  remainingFinancialPower,
+  existingCardExposure,
+  existingTotalExposure,
+  settings,
+  initialAmount,
+  onBack,
+  onApply,
+}) {
+  const { eligible, limit: maxLimit, cappedBy } = useMemo(
+    () => computeCardEligibility({ remainingFinancialPower, existingCardExposure, existingTotalExposure, settings }),
+    [remainingFinancialPower, existingCardExposure, existingTotalExposure, settings],
+  )
   const sliderMin = MIN_CREDIT_LIMIT
 
-  const [amountOverride, setAmountOverride] = useState(null)
+  const [amountOverride, setAmountOverride] = useState(() => initialAmount ?? null)
   const [submitted, setSubmitted] = useState(false)
 
-  const selectedLimit = Math.min(amountOverride ?? creditLimit, creditLimit)
+  const selectedLimit = Math.min(amountOverride ?? maxLimit, maxLimit)
   const sliderPct = eligible
-    ? ((selectedLimit - sliderMin) / Math.max(creditLimit - sliderMin, 1)) * 100
+    ? ((selectedLimit - sliderMin) / Math.max(maxLimit - sliderMin, 1)) * 100
     : 0
   const estMinPayment = selectedLimit * 0.1
 
@@ -57,25 +65,14 @@ export default function CreditCardApplication({ customer, onBack, onApply }) {
       <ScreenHeader title="Dream Card" onBack={onBack} />
 
       <div className="card-apply__body">
-        <div className="card-apply__card">
-          <div className="card-apply__card-glow" />
-          <div className="card-apply__card-top">
-            <span className="card-apply__wordmark">WING</span>
-            <span className="pill card-apply__tier-pill">Dream Card</span>
-          </div>
-          <div className="num card-apply__card-number">&bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; &bull;&bull;&bull;&bull; 4821</div>
-          <div className="card-apply__card-bottom">
-            <span>{customer.name.toUpperCase()}</span>
-            <span className="num">08/29</span>
-          </div>
-        </div>
+        <CardVisual cardholderName={customer.name} expiry="08/29" />
 
         {!eligible ? (
           <div className="card-apply__ineligible-card">
             <div className="card-apply__ineligible-title">You are not eligible for a card</div>
             <p className="card-apply__ineligible-copy">
-              Your Financial Power doesn&apos;t reach the minimum card limit (${MIN_CREDIT_LIMIT}
-              ) yet.
+              Your remaining Financial Power doesn&apos;t reach the minimum card limit ($
+              {MIN_CREDIT_LIMIT}) yet.
             </p>
           </div>
         ) : (
@@ -90,7 +87,7 @@ export default function CreditCardApplication({ customer, onBack, onApply }) {
                 type="range"
                 className="range-input"
                 min={sliderMin}
-                max={creditLimit}
+                max={maxLimit}
                 step={10}
                 value={selectedLimit}
                 onChange={(e) => setAmountOverride(Number(e.target.value))}
@@ -98,11 +95,9 @@ export default function CreditCardApplication({ customer, onBack, onApply }) {
               />
               <div className="card-apply__slider-labels">
                 <span className="num">${sliderMin.toLocaleString()}</span>
-                <span className="num">${creditLimit.toLocaleString()} max</span>
+                <span className="num">${maxLimit.toLocaleString()} max</span>
               </div>
-              <div className="card-apply__slider-caption">
-                Recommended limit, based on your Financial Power
-              </div>
+              <div className="card-apply__slider-caption">Capped by {cappedBy}</div>
             </div>
 
             <div className="card card-apply__summary">

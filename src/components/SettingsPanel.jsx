@@ -20,15 +20,56 @@ function PercentField({ label, hint, value, onChange, step = 0.1 }) {
   )
 }
 
+function AmountField({ label, hint, value, onChange, step = 100 }) {
+  return (
+    <label className="settings-panel__field">
+      <span className="settings-panel__field-label">{label}</span>
+      {hint && <span className="settings-panel__field-hint">{hint}</span>}
+      <div className="settings-panel__field-input">
+        <span>$</span>
+        <input
+          type="number"
+          min="0"
+          step={step}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value) || 0)}
+        />
+      </div>
+    </label>
+  )
+}
+
 export default function SettingsPanel({ settings, onChange, onClose }) {
   return (
     <div className="settings-panel">
       <div className="settings-panel__header">
-        <span>Loan Settings</span>
+        <span>Product Settings</span>
         <button type="button" className="settings-panel__close" onClick={onClose} aria-label="Close">
           <CloseIcon />
         </button>
       </div>
+
+      <AmountField
+        label="Max loan limit"
+        hint="Per-loan cap, before the master limit"
+        value={settings.maxLoanLimit}
+        onChange={(v) => onChange({ ...settings, maxLoanLimit: v })}
+      />
+      <AmountField
+        label="Max card limit"
+        hint="Per-card cap, before the master limit"
+        value={settings.maxCardLimit}
+        onChange={(v) => onChange({ ...settings, maxCardLimit: v })}
+      />
+      <AmountField
+        label="Master capped limit"
+        hint="Combined ceiling across all active loans + cards"
+        step={1000}
+        value={settings.masterCappedLimit}
+        onChange={(v) => onChange({ ...settings, masterCappedLimit: v })}
+      />
+
+      <div className="settings-panel__divider" />
 
       <PercentField
         label="PPI premium rate"
