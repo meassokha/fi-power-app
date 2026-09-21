@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import ScreenHeader from '../components/ScreenHeader'
 import CardVisual from '../components/CardVisual'
 import { CheckIcon } from '../components/icons'
-import { CREDIT_CARD_INTEREST_RATE, MIN_CREDIT_LIMIT, computeCardEligibility } from '../utils/creditCardCalculations'
+import { MIN_CREDIT_LIMIT, computeCardEligibility } from '../utils/creditCardCalculations'
 import './CreditCardApplication.css'
 
 export default function CreditCardApplication({
@@ -104,7 +104,7 @@ export default function CreditCardApplication({
               <div className="card-apply__summary-row">
                 <span>Interest rate</span>
                 <span className="num">
-                  {(CREDIT_CARD_INTEREST_RATE * 100).toFixed(0)}% p.a. ({(CREDIT_CARD_INTEREST_RATE * 100 / 12).toFixed(1)}%/mo)
+                  {(settings.cardInterestRate * 100).toFixed(0)}% p.a. ({(settings.cardInterestRate * 100 / 12).toFixed(1)}%/mo)
                 </span>
               </div>
               <div className="card-apply__summary-row">

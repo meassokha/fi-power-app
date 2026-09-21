@@ -1,4 +1,3 @@
-export const CREDIT_CARD_INTEREST_RATE = 0.18 // 18% p.a., i.e. 1.5%/month
 export const MIN_MONTHLY_REPAYMENT_RATE = 0.1
 export const MIN_CREDIT_LIMIT = 200
 

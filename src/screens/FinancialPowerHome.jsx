@@ -1,19 +1,13 @@
 import { useState } from 'react'
 import BottomNav from '../components/BottomNav'
-import { BellIcon, ClockIcon, GridIcon, InfoIcon } from '../components/icons'
-import { MIN_LOAN_AMOUNT, computeEmi, computeLoanEligibility } from '../utils/loanCalculations'
+import { BellIcon, CardsIcon, ClockIcon, GridIcon, InfoIcon, LoanIcon } from '../components/icons'
 import { MIN_CREDIT_LIMIT, computeCardEligibility } from '../utils/creditCardCalculations'
+import { MIN_LOAN_AMOUNT, computeLoanEligibility, computeLoanOffer } from '../utils/loanCalculations'
 import './FinancialPowerHome.css'
 
-const PREVIEW_TENOR = 36
-
-function loanEmiFor(amount, annualRate) {
-  return amount > 0 ? computeEmi(amount, annualRate, PREVIEW_TENOR) : 0
-}
-
-function cardMinPaymentFor(amount) {
-  return amount * 0.1
-}
+const TENORS = [6, 12, 24, 36]
+const CARD_VALIDITY_YEARS = 5
+const OFFER_EXPIRY_DAYS = 30
 
 export default function FinancialPowerHome({
   customer,
@@ -27,6 +21,7 @@ export default function FinancialPowerHome({
   onGoToLoan,
   onGoToCard,
 }) {
+  const [tenor, setTenor] = useState(36)
   const [loanOverride, setLoanOverride] = useState(null)
   const [cardOverride, setCardOverride] = useState(null)
 
@@ -35,80 +30,70 @@ export default function FinancialPowerHome({
     .map((part) => part[0])
     .join('')
 
-  // The slider's fixed scale — each product's ceiling on its OWN, ignoring
-  // the other. This never changes just because the other bar moves, so an
-  // untouched (or already-valid) slider's thumb never drifts on its own;
-  // only an actual drag, or a real forced clamp, ever moves it.
-  const loanOwn = computeLoanEligibility({
+  // Loan and card are independent — each is checked purely against the
+  // customer's own remaining Financial Power and exposure, with no
+  // cross-product coupling. Both tiles keep a slider defaulting to their
+  // own max, re-clamped whenever the tenor (loan) changes its ceiling.
+  const loanEligibility = computeLoanEligibility({
     remainingFinancialPower,
     annualRate: customer.interestRate,
-    months: PREVIEW_TENOR,
+    months: tenor,
     existingLoanExposure,
     existingTotalExposure,
     settings,
   })
-  const cardOwn = computeCardEligibility({
+  const cardEligibility = computeCardEligibility({
     remainingFinancialPower,
     existingCardExposure,
     existingTotalExposure,
     settings,
   })
 
-  // What's actually committed right now — 0 until the customer touches that
-  // bar, so an untouched bar doesn't eat into the other's headroom.
-  const loanCommitment = loanOverride ?? 0
-  const cardCommitment = cardOverride ?? 0
-
-  // The REAL ceiling right now, with the other bar's current commitment
-  // counted against the shared EMI capacity and the shared master cap.
-  const loanLive = computeLoanEligibility({
-    remainingFinancialPower: Math.max(remainingFinancialPower - cardMinPaymentFor(cardCommitment), 0),
-    annualRate: customer.interestRate,
-    months: PREVIEW_TENOR,
-    existingLoanExposure,
-    existingTotalExposure: existingTotalExposure + cardCommitment,
-    settings,
-  })
-  const cardLive = computeCardEligibility({
-    remainingFinancialPower: Math.max(remainingFinancialPower - loanEmiFor(loanCommitment, customer.interestRate), 0),
-    existingCardExposure,
-    existingTotalExposure: existingTotalExposure + loanCommitment,
-    settings,
-  })
-
-  // Both start at 0 (nothing committed yet) rather than defaulting to their
-  // max — defaulting both to max would show two amounts that can't actually
-  // be taken at the same time, since they share the same capacity.
-  const loanAmount = loanLive.eligible ? Math.min(loanOverride ?? 0, loanLive.maxLoan) : 0
-  const cardAmount = cardLive.eligible ? Math.min(cardOverride ?? 0, cardLive.limit) : 0
-
-  // Live preview: how much of the remaining Financial Power the currently
-  // dragged loan/card amounts would use together, so the "Available" bar
-  // reacts as the customer drags either slider.
-  const previewUsed = loanEmiFor(loanAmount, customer.interestRate) + cardMinPaymentFor(cardAmount)
-  const previewRemaining = Math.max(Math.floor(remainingFinancialPower - previewUsed), 0)
-  const previewPct = customer.financialPower > 0 ? Math.min((previewRemaining / customer.financialPower) * 100, 100) : 0
-
-  // Fill and "blocked" width, both measured against the FIXED own-scale —
-  // never against the live (shrinkable) ceiling — so the bar only ever
-  // moves when its own value actually changes.
-  const loanSliderPct = loanOwn.eligible ? (loanAmount / Math.max(loanOwn.maxLoan, 1)) * 100 : 0
-  const cardSliderPct = cardOwn.eligible ? (cardAmount / Math.max(cardOwn.limit, 1)) * 100 : 0
-  const loanBlockedPct = loanOwn.eligible
-    ? Math.max(0, Math.min(100, ((loanOwn.maxLoan - loanLive.maxLoan) / Math.max(loanOwn.maxLoan, 1)) * 100))
+  const loanAmount = loanEligibility.eligible
+    ? Math.min(loanOverride ?? loanEligibility.maxLoan, loanEligibility.maxLoan)
     : 0
-  const cardBlockedPct = cardOwn.eligible
-    ? Math.max(0, Math.min(100, ((cardOwn.limit - cardLive.limit) / Math.max(cardOwn.limit, 1)) * 100))
+  const loanSliderPct = loanEligibility.eligible
+    ? ((loanAmount - MIN_LOAN_AMOUNT) / Math.max(loanEligibility.maxLoan - MIN_LOAN_AMOUNT, 1)) * 100
     : 0
 
-  const loanBelowMin = loanAmount > 0 && loanAmount < MIN_LOAN_AMOUNT
+  const loanOffer = loanEligibility.eligible
+    ? computeLoanOffer({
+        annualRate: customer.interestRate,
+        months: tenor,
+        ppiSelected: false,
+        settings,
+        loanAmount,
+      })
+    : null
+
+  const cardAmount = cardEligibility.eligible
+    ? Math.min(cardOverride ?? cardEligibility.limit, cardEligibility.limit)
+    : 0
+  const cardSliderPct = cardEligibility.eligible ? (cardAmount / Math.max(cardEligibility.limit, 1)) * 100 : 0
   const cardBelowMin = cardAmount > 0 && cardAmount < MIN_CREDIT_LIMIT
 
+  const availablePct = customer.financialPower > 0 ? Math.min((remainingFinancialPower / customer.financialPower) * 100, 100) : 0
+
   function handleNavigate(target) {
-    if (target === 'loan') return onGoToLoan(loanAmount)
+    if (target === 'loan') return onGoToLoan(loanAmount, tenor)
     if (target === 'card') return onGoToCard(cardAmount)
     onNavigate(target)
   }
+
+  const tenorPicker = (
+    <div className="fp-home__product-tenors">
+      {TENORS.map((months) => (
+        <button
+          key={months}
+          type="button"
+          className={`fp-home__tenor-pill ${months === tenor ? 'is-selected' : ''}`}
+          onClick={() => setTenor(months)}
+        >
+          {months} mo
+        </button>
+      ))}
+    </div>
+  )
 
   return (
     <>
@@ -138,15 +123,17 @@ export default function FinancialPowerHome({
 
       <div className="fp-home__body">
         <div className="fp-home__hero">
-          <button
-            type="button"
-            className="fp-home__hero-info"
-            onClick={() => onNavigate('breakdown')}
-            aria-label="How this is calculated"
-          >
-            <InfoIcon width={14} height={14} />
-          </button>
-          <span className="fp-home__hero-label">Your Financial Power</span>
+          <div className="fp-home__hero-label-row">
+            <span className="fp-home__hero-label">Your Financial Power</span>
+            <button
+              type="button"
+              className="fp-home__hero-info"
+              onClick={() => onNavigate('breakdown')}
+              aria-label="How this is calculated"
+            >
+              <InfoIcon width={13} height={13} />
+            </button>
+          </div>
           <div className="fp-home__hero-amount">
             <span className="num">${remainingFinancialPower.toLocaleString()}</span>
             <span className="fp-home__hero-unit">/ month</span>
@@ -156,11 +143,11 @@ export default function FinancialPowerHome({
             <div className="fp-home__hero-usage-row">
               <span>Available</span>
               <span className="num">
-                ${previewRemaining.toLocaleString()} of ${customer.financialPower}
+                ${remainingFinancialPower.toLocaleString()} of ${customer.financialPower}
               </span>
             </div>
             <div className="fp-home__hero-usage-track">
-              <div className="fp-home__hero-usage-fill" style={{ width: `${previewPct}%` }} />
+              <div className="fp-home__hero-usage-fill" style={{ width: `${availablePct}%` }} />
             </div>
           </div>
 
@@ -170,72 +157,76 @@ export default function FinancialPowerHome({
           </div>
         </div>
 
-        <div className="card fp-home__product">
+        <div className="fp-home__product fp-home__product--loan">
+          <div className="fp-home__product-glow" />
+          <span className="fp-home__product-expiry">Expires in {OFFER_EXPIRY_DAYS} days</span>
           <div className="fp-home__product-header">
+            <span className="fp-home__product-icon">
+              <LoanIcon width={16} height={16} />
+            </span>
             <span className="fp-home__product-name">Consumer Loan</span>
-            <span className="num fp-home__product-amount">${loanAmount.toLocaleString()}</span>
           </div>
-          {loanOwn.eligible ? (
+
+          {loanEligibility.eligible ? (
             <>
-              <div className="fp-home__slider-wrap">
-                <input
-                  type="range"
-                  className="range-input"
-                  min={0}
-                  max={loanOwn.maxLoan}
-                  step={10}
-                  value={loanAmount}
-                  onChange={(e) => setLoanOverride(Math.min(Number(e.target.value), loanLive.maxLoan))}
-                  style={{ '--fill': `${loanSliderPct}%` }}
-                />
-                {loanBlockedPct > 0 && (
-                  <div className="fp-home__slider-blocked" style={{ width: `${loanBlockedPct}%` }} />
-                )}
-              </div>
+              <div className="num fp-home__product-amount">${loanAmount.toLocaleString()}</div>
+              <input
+                type="range"
+                className="range-input fp-home__product-range"
+                min={MIN_LOAN_AMOUNT}
+                max={loanEligibility.maxLoan}
+                step={10}
+                value={loanAmount}
+                onChange={(e) => setLoanOverride(Number(e.target.value))}
+                style={{ '--fill': `${loanSliderPct}%` }}
+              />
+              {tenorPicker}
               <div className="fp-home__product-footer">
                 <span className="fp-home__product-caption">
-                  {loanBelowMin ? `Drag to at least $${MIN_LOAN_AMOUNT.toLocaleString()} to apply` : `Up to $${loanLive.maxLoan.toLocaleString()}`}
+                  Cash on hand ${Math.round(loanOffer.cashOnHand).toLocaleString()}
                 </span>
-                <button
-                  type="button"
-                  className="fp-home__product-apply"
-                  disabled={loanAmount < MIN_LOAN_AMOUNT}
-                  onClick={() => handleNavigate('loan')}
-                >
+                <button type="button" className="fp-home__product-apply" onClick={() => handleNavigate('loan')}>
                   Apply
                 </button>
               </div>
             </>
           ) : (
-            <p className="fp-home__product-ineligible">Not eligible for a loan right now</p>
+            <>
+              <p className="fp-home__product-ineligible">Not eligible for a loan at {tenor} months</p>
+              {tenorPicker}
+            </>
           )}
         </div>
 
-        <div className="card fp-home__product">
+        <div className="fp-home__product fp-home__product--card">
+          <div className="fp-home__product-glow" />
+          <span className="fp-home__product-expiry">Expires in {OFFER_EXPIRY_DAYS} days</span>
           <div className="fp-home__product-header">
+            <span className="fp-home__product-icon">
+              <CardsIcon width={16} height={16} />
+            </span>
             <span className="fp-home__product-name">Dream Card</span>
-            <span className="num fp-home__product-amount">${cardAmount.toLocaleString()}</span>
           </div>
-          {cardOwn.eligible ? (
+
+          {cardEligibility.eligible ? (
             <>
-              <div className="fp-home__slider-wrap">
-                <input
-                  type="range"
-                  className="range-input"
-                  min={0}
-                  max={cardOwn.limit}
-                  step={10}
-                  value={cardAmount}
-                  onChange={(e) => setCardOverride(Math.min(Number(e.target.value), cardLive.limit))}
-                  style={{ '--fill': `${cardSliderPct}%` }}
-                />
-                {cardBlockedPct > 0 && (
-                  <div className="fp-home__slider-blocked" style={{ width: `${cardBlockedPct}%` }} />
-                )}
+              <div className="num fp-home__product-amount">${cardAmount.toLocaleString()}</div>
+              <input
+                type="range"
+                className="range-input fp-home__product-range"
+                min={0}
+                max={cardEligibility.limit}
+                step={10}
+                value={cardAmount}
+                onChange={(e) => setCardOverride(Number(e.target.value))}
+                style={{ '--fill': `${cardSliderPct}%` }}
+              />
+              <div className="fp-home__product-validity">
+                Free annual fee &middot; Card validity: {CARD_VALIDITY_YEARS} years
               </div>
               <div className="fp-home__product-footer">
                 <span className="fp-home__product-caption">
-                  {cardBelowMin ? `Drag to at least $${MIN_CREDIT_LIMIT.toLocaleString()} to apply` : `Up to $${cardLive.limit.toLocaleString()}`}
+                  {cardBelowMin ? `Drag to at least $${MIN_CREDIT_LIMIT.toLocaleString()} to apply` : ''}
                 </span>
                 <button
                   type="button"
@@ -251,6 +242,10 @@ export default function FinancialPowerHome({
             <p className="fp-home__product-ineligible">Not eligible for a card right now</p>
           )}
         </div>
+
+        <button type="button" className="fp-home__product-tip-link" onClick={() => {}}>
+          Get a higher loan with an extra income source
+        </button>
       </div>
 
       <BottomNav active="home" onNavigate={handleNavigate} />

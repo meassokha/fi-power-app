@@ -1,3 +1,7 @@
+import { addDaysToDate } from './dates'
+
+export const WHITELIST_VALIDITY_DAYS = 30
+
 export const SEGMENTS = {
   MASS: 'Salary Mass',
   UPPER_MASS: 'Salary Upper Mass',
@@ -39,6 +43,7 @@ export function withDerivedFields(customer) {
     totalObligation,
     maxAllowedObligation: Math.round(maxAllowedObligation),
     financialPower,
+    expiryDate: customer.uploadDate ? addDaysToDate(customer.uploadDate, WHITELIST_VALIDITY_DAYS) : null,
   }
 }
 

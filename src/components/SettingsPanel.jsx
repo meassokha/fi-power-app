@@ -61,6 +61,13 @@ export default function SettingsPanel({ settings, onChange, onClose }) {
         value={settings.maxCardLimit}
         onChange={(v) => onChange({ ...settings, maxCardLimit: v })}
       />
+      <PercentField
+        label="Dream Card interest rate"
+        hint="Annual percentage rate"
+        step={1}
+        value={settings.cardInterestRate * 100}
+        onChange={(v) => onChange({ ...settings, cardInterestRate: v / 100 })}
+      />
       <AmountField
         label="Master capped limit"
         hint="Combined ceiling across all active loans + cards"
@@ -91,3 +98,4 @@ export default function SettingsPanel({ settings, onChange, onClose }) {
     </div>
   )
 }
+

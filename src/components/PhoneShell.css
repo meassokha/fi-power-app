@@ -40,10 +40,10 @@
 @media (min-width: 431px) {
   .phone-frame {
     box-sizing: border-box;
-    width: 418px;
+    width: 390px;
     /* Shrink to fit whatever height the workspace actually has instead of
        forcing the natural size and forcing a scrollbar on shorter screens. */
-    height: min(872px, calc(100vh - 150px));
+    height: min(950px, calc(100vh - 130px));
     padding: 14px;
     margin: 12px auto;
     border-radius: 46px;

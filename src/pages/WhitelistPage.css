@@ -96,7 +96,7 @@
 
 .whitelist__table {
   width: 100%;
-  min-width: 1080px;
+  min-width: 1300px;
 }
 
 .whitelist__row {
@@ -152,72 +152,6 @@
   font-weight: 700;
 }
 
-.whitelist__add-trigger {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 14px;
-  border-radius: 12px;
-  border: 1.5px dashed var(--color-border);
-  background: transparent;
-  color: var(--color-primary);
-  font-family: var(--font-body);
-  font-size: 13.5px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.whitelist__add-trigger:hover {
-  border-color: var(--color-primary);
-  background: var(--color-primary-light);
-}
-
-.whitelist__add-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 20px;
-  border-radius: 14px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-}
-
-.whitelist__add-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 14px;
-}
-
-.whitelist__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.whitelist__field input,
-.whitelist__field select {
-  height: 40px;
-  border-radius: 9px;
-  border: 1px solid var(--color-border);
-  padding: 0 12px;
-  font-family: var(--font-body);
-  font-size: 14px;
-  color: var(--color-text-strong);
-  background: var(--color-bg);
-}
-
-.whitelist__field input:focus,
-.whitelist__field select:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  background: var(--color-surface);
-}
-
 .whitelist__add-preview {
   display: flex;
   align-items: center;
@@ -244,40 +178,3 @@
   color: var(--color-text-strong);
 }
 
-.whitelist__add-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.whitelist__cancel-btn {
-  height: 40px;
-  padding: 0 18px;
-  border-radius: 10px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text);
-  font-family: var(--font-body);
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.whitelist__submit-btn {
-  height: 40px;
-  padding: 0 20px;
-  border-radius: 10px;
-  border: none;
-  background: var(--color-primary);
-  color: white;
-  font-family: var(--font-body);
-  font-size: 13.5px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.whitelist__submit-btn:disabled {
-  background: var(--color-border);
-  color: var(--color-text-muted);
-  cursor: not-allowed;
-}

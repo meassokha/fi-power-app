@@ -13,10 +13,11 @@ export default function LoanApplication({
   existingTotalExposure,
   settings,
   initialAmount,
+  initialTenor,
   onBack,
   onApply,
 }) {
-  const [tenor, setTenor] = useState(36)
+  const [tenor, setTenor] = useState(initialTenor ?? 36)
   const [ppiSelected, setPpiSelected] = useState(false)
   const [amountOverride, setAmountOverride] = useState(() => initialAmount ?? null)
   const [submitted, setSubmitted] = useState(false)

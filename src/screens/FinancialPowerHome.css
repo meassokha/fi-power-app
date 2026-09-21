@@ -76,52 +76,54 @@
 }
 
 .fp-home__body {
-  padding: 20px 24px 0;
+  padding: 18px 24px 18px;
   flex: 1;
   overflow: hidden auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
+/* Financial Power hero — deliberately plain: no fill, no border, just the
+   number, in the brand blue, so the two product cards below carry the
+   visual weight instead. */
 .fp-home__hero {
-  position: relative;
-  border-radius: 22px;
-  padding: 22px 24px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  padding: 2px 4px 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  box-shadow: var(--shadow-card);
-  color: white;
+  gap: 6px;
+}
+
+.fp-home__hero-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fp-home__hero-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
 }
 
 .fp-home__hero-info {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   border-radius: 999px;
   border: none;
-  background: rgb(255 255 255 / 0.18);
-  color: white;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .fp-home__hero-info:hover {
-  background: rgb(255 255 255 / 0.3);
-}
-
-.fp-home__hero-label {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgb(255 255 255 / 0.75);
+  background: oklch(90% 0.05 254);
 }
 
 .fp-home__hero-amount {
@@ -131,22 +133,22 @@
 }
 
 .fp-home__hero-amount .num {
-  font-size: 46px;
+  font-size: 32px;
   font-weight: 800;
   line-height: 1;
-  color: white;
+  color: var(--color-primary);
 }
 
 .fp-home__hero-unit {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
-  color: rgb(255 255 255 / 0.8);
+  color: var(--color-text-muted);
 }
 
 .fp-home__hero-usage {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   margin-top: 2px;
 }
 
@@ -154,25 +156,25 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 11.5px;
-  color: rgb(255 255 255 / 0.8);
+  font-size: 11px;
+  color: var(--color-text-muted);
 }
 
 .fp-home__hero-usage-row .num {
   font-weight: 700;
-  color: white;
+  color: var(--color-primary);
 }
 
 .fp-home__hero-usage-track {
-  height: 6px;
+  height: 5px;
   border-radius: 999px;
-  background: rgb(255 255 255 / 0.25);
+  background: var(--color-border);
 }
 
 .fp-home__hero-usage-fill {
   height: 100%;
   border-radius: 999px;
-  background: white;
+  background: var(--color-primary);
   transition: width 0.15s ease;
 }
 
@@ -180,55 +182,174 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 4px;
-  color: rgb(255 255 255 / 0.7);
-  font-size: 11.5px;
+  margin-top: 2px;
+  color: var(--color-text-muted);
+  font-size: 10.5px;
 }
 
+/* Product tiles — styled as bank-card visuals: a colored gradient rather
+   than the plain white card used elsewhere in the app. */
 .fp-home__product {
+  position: relative;
+  border-radius: 20px;
+  padding: 18px 20px;
+  min-height: 196px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  color: white;
+  overflow: hidden;
+  box-shadow: 0 14px 28px -16px oklch(22% 0.02 254 / 0.4);
 }
 
-.fp-home__product-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.fp-home__product--loan {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
 }
 
-.fp-home__product-name {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--color-text-strong);
+.fp-home__product--card {
+  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-teal));
 }
 
-.fp-home__product-amount {
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--color-primary);
-}
-
-.fp-home__slider-wrap {
-  position: relative;
-}
-
-.fp-home__slider-blocked {
+.fp-home__product-glow {
   position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 6px;
-  border-radius: 0 999px 999px 0;
-  background: repeating-linear-gradient(
-    45deg,
-    oklch(45% 0.02 254 / 0.18) 0 4px,
-    transparent 4px 8px
-  );
+  right: -30px;
+  top: -30px;
+  width: 130px;
+  height: 130px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.08);
   pointer-events: none;
 }
 
+.fp-home__product-expiry {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgb(255 255 255 / 0.75);
+}
+
+.fp-home__product-tip-link {
+  margin: -2px 2px 0;
+  padding: 0;
+  border: none;
+  background: none;
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fp-home__product-tip-link:hover {
+  color: var(--color-primary-dark);
+}
+
+.fp-home__product-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fp-home__product-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.18);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fp-home__product-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgb(255 255 255 / 0.92);
+}
+
+.fp-home__product-amount {
+  position: relative;
+  font-size: 26px;
+  font-weight: 800;
+  color: white;
+}
+
+.fp-home__product-tenors {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.fp-home__tenor-pill {
+  padding: 7px 0;
+  border-radius: 10px;
+  border: 1px solid rgb(255 255 255 / 0.35);
+  background: rgb(255 255 255 / 0.12);
+  color: rgb(255 255 255 / 0.9);
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fp-home__tenor-pill.is-selected {
+  background: white;
+  border-color: white;
+  color: var(--color-primary-dark);
+  font-weight: 700;
+}
+
+.fp-home__product-range {
+  position: relative;
+}
+
+input.fp-home__product-range::-webkit-slider-runnable-track {
+  background: linear-gradient(
+    to right,
+    white var(--fill, 0%),
+    rgb(255 255 255 / 0.3) var(--fill, 0%)
+  );
+}
+
+input.fp-home__product-range::-moz-range-track {
+  background: rgb(255 255 255 / 0.3);
+}
+
+input.fp-home__product-range::-moz-range-progress {
+  background: white;
+}
+
+input.fp-home__product-range::-webkit-slider-thumb {
+  background: white;
+  border-color: var(--color-primary-dark);
+}
+
+input.fp-home__product-range::-moz-range-thumb {
+  background: white;
+  border-color: var(--color-primary-dark);
+}
+
+.fp-home__product-validity {
+  position: relative;
+  font-size: 10.5px;
+  color: rgb(255 255 255 / 0.75);
+  margin-top: -2px;
+}
+
 .fp-home__product-footer {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -236,8 +357,8 @@
 }
 
 .fp-home__product-caption {
-  font-size: 11px;
-  color: var(--color-text-muted);
+  font-size: 10.5px;
+  color: rgb(255 255 255 / 0.8);
 }
 
 .fp-home__product-apply {
@@ -246,8 +367,8 @@
   padding: 0 18px;
   border-radius: 999px;
   border: none;
-  background: var(--color-primary);
-  color: white;
+  background: white;
+  color: var(--color-primary-dark);
   font-family: var(--font-body);
   font-size: 12.5px;
   font-weight: 700;
@@ -255,17 +376,18 @@
 }
 
 .fp-home__product-apply:hover {
-  background: var(--color-primary-dark);
+  background: oklch(94% 0.02 254);
 }
 
 .fp-home__product-apply:disabled {
-  background: var(--color-border);
-  color: var(--color-text-muted);
+  background: rgb(255 255 255 / 0.3);
+  color: rgb(255 255 255 / 0.65);
   cursor: not-allowed;
 }
 
 .fp-home__product-ineligible {
+  position: relative;
   font-size: 12px;
-  color: var(--color-text-muted);
+  color: rgb(255 255 255 / 0.85);
   margin: 0;
 }

@@ -29,7 +29,7 @@
   gap: 10px;
 }
 
-.app-shell__lms-btn {
+.app-shell__nav-tab {
   height: 36px;
   padding: 0 16px;
   border-radius: 999px;
@@ -43,9 +43,15 @@
   white-space: nowrap;
 }
 
-.app-shell__lms-btn:hover {
+.app-shell__nav-tab:hover {
   color: var(--color-primary);
   border-color: var(--color-primary);
+}
+
+.app-shell__nav-tab.is-active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
 }
 
 .app-shell__settings-btn {

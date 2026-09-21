@@ -3,20 +3,17 @@ import './App.css'
 import './styles/shared.css'
 import WhitelistPage from './pages/WhitelistPage'
 import LmsPage from './pages/LmsPage'
+import DemoPage from './pages/DemoPage'
 import PhoneShell from './components/PhoneShell'
 import SettingsPanel from './components/SettingsPanel'
+import CustomerJourney from './components/CustomerJourney'
 import { GearIcon } from './components/icons'
-import FinancialPowerHome from './screens/FinancialPowerHome'
-import FinancialPowerBreakdown from './screens/FinancialPowerBreakdown'
-import LoanApplication from './screens/LoanApplication'
-import CreditCardApplication from './screens/CreditCardApplication'
-import LoanAccount from './screens/LoanAccount'
-import CardAccount from './screens/CardAccount'
-import ActiveProducts from './screens/ActiveProducts'
 import { defaultSelectedCustomerId, initialCustomers } from './data/customers'
-import { nextCustomerId, withDerivedFields } from './utils/customerRules'
+import { initialUsers } from './data/users'
+import { nextCustomerId } from './utils/customerRules'
+import { nextUserId } from './utils/users'
 import { DEFAULT_SETTINGS } from './utils/settings'
-import { exposureByType, monthlyCommitment, nextApplicationId, totalExposure } from './utils/applications'
+import { nextApplicationId } from './utils/applications'
 import { todayIsoDate } from './utils/dates'
 
 const SETTINGS_STORAGE_KEY = 'financePower.settings'
@@ -34,14 +31,11 @@ function App() {
   const [page, setPage] = useState('main')
   const [customers, setCustomers] = useState(initialCustomers)
   const [selectedCustomerId, setSelectedCustomerId] = useState(defaultSelectedCustomerId)
-  const [screen, setScreen] = useState('home')
   const [settings, setSettings] = useState(loadStoredSettings)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [applications, setApplications] = useState([])
-  const [viewingLoanApplicationId, setViewingLoanApplicationId] = useState(null)
-  const [viewingCardApplicationId, setViewingCardApplicationId] = useState(null)
-  const [pendingLoanAmount, setPendingLoanAmount] = useState(null)
-  const [pendingCardAmount, setPendingCardAmount] = useState(null)
+  const [users, setUsers] = useState(initialUsers)
+  const [customProducts, setCustomProducts] = useState([])
 
   useEffect(() => {
     try {
@@ -52,65 +46,33 @@ function App() {
     }
   }, [settings])
 
-  const selectedCustomer = useMemo(() => {
-    const raw = customers.find((c) => c.id === selectedCustomerId) ?? customers[0]
-    return withDerivedFields(raw)
-  }, [customers, selectedCustomerId])
-
-  const activeApplications = useMemo(
-    () => applications.filter((a) => a.customerId === selectedCustomer.id && a.status === 'active'),
-    [applications, selectedCustomer.id],
+  const selectedCustomerRaw = useMemo(
+    () => customers.find((c) => c.id === selectedCustomerId) ?? customers[0],
+    [customers, selectedCustomerId],
   )
-
-  // What's actually left to underwrite a NEW application against: monthly
-  // capacity (EMI-based) minus what active products already commit, plus
-  // the dollar exposure (principal/limit) those same products already hold —
-  // tracked per product type (against that product's own cap) and combined
-  // (against the master cap).
-  const remainingFinancialPower = Math.max(
-    Math.floor(selectedCustomer.financialPower - activeApplications.reduce((sum, app) => sum + monthlyCommitment(app), 0)),
-    0,
-  )
-  const existingLoanExposure = exposureByType(applications, selectedCustomer.id, 'loan')
-  const existingCardExposure = exposureByType(applications, selectedCustomer.id, 'card')
-  const existingTotalExposure = totalExposure(applications, selectedCustomer.id)
-
-  const viewingLoanApplication = applications.find((a) => a.id === viewingLoanApplicationId) ?? null
-  const viewingCardApplication = applications.find((a) => a.id === viewingCardApplicationId) ?? null
-
-  function goHome() {
-    setPendingLoanAmount(null)
-    setPendingCardAmount(null)
-    setScreen('home')
-  }
 
   function handleSelectCustomer(id) {
     setSelectedCustomerId(id)
-    goHome()
   }
 
   function handleAddCustomer(fields) {
     const id = nextCustomerId(customers)
-    setCustomers((prev) => [...prev, { id, ...fields }])
+    setCustomers((prev) => [...prev, { id, ...fields, uploadDate: todayIsoDate() }])
     setSelectedCustomerId(id)
-    goHome()
   }
 
-  function handleGoToLoan(amount) {
-    setPendingLoanAmount(amount)
-    setScreen('loan')
+  function handleCreateDemoCustomer(fields) {
+    const id = nextCustomerId(customers)
+    const customer = { id, ...fields, uploadDate: todayIsoDate() }
+    setCustomers((prev) => [...prev, customer])
+    return customer
   }
 
-  function handleGoToCard(amount) {
-    setPendingCardAmount(amount)
-    setScreen('card')
-  }
-
-  function handleApply(type, fields) {
+  function handleApply(customerId, customerName, type, fields) {
     const application = {
       id: nextApplicationId(applications),
-      customerId: selectedCustomer.id,
-      customerName: selectedCustomer.name,
+      customerId,
+      customerName,
       type,
       status: 'active',
       disbursementDate: todayIsoDate(),
@@ -129,18 +91,23 @@ function App() {
     )
   }
 
-  function handleViewLoan(app) {
-    setViewingLoanApplicationId(app.id)
-    setScreen('loan-account')
-  }
-
-  function handleViewCard(app) {
-    setViewingCardApplicationId(app.id)
-    setScreen('card-account')
-  }
-
   function handleCloseApplication(applicationId) {
     setApplications((prev) => prev.map((a) => (a.id === applicationId ? { ...a, status: 'closed' } : a)))
+  }
+
+  function handleAddUser(fields) {
+    const id = nextUserId(users)
+    setUsers((prev) => [...prev, { id, ...fields, status: 'active' }])
+  }
+
+  function handleToggleUserStatus(id) {
+    setUsers((prev) =>
+      prev.map((u) => (u.id === id ? { ...u, status: u.status === 'active' ? 'inactive' : 'active' } : u)),
+    )
+  }
+
+  function handleCreateProduct(product) {
+    setCustomProducts((prev) => [...prev, product])
   }
 
   return (
@@ -150,10 +117,17 @@ function App() {
         <div className="app-shell__nav-actions">
           <button
             type="button"
-            className="app-shell__lms-btn"
-            onClick={() => setPage((p) => (p === 'main' ? 'lms' : 'main'))}
+            className={`app-shell__nav-tab ${page === 'lms' ? 'is-active' : ''}`}
+            onClick={() => setPage((p) => (p === 'lms' ? 'main' : 'lms'))}
           >
-            {page === 'main' ? 'LMS' : '← Back to App'}
+            LMS
+          </button>
+          <button
+            type="button"
+            className={`app-shell__nav-tab ${page === 'demo' ? 'is-active' : ''}`}
+            onClick={() => setPage((p) => (p === 'demo' ? 'main' : 'demo'))}
+          >
+            {page === 'demo' ? 'HOME' : 'DEMO'}
           </button>
           <button
             type="button"
@@ -174,7 +148,7 @@ function App() {
       </header>
 
       <div className="app-shell__content">
-        {page === 'lms' ? (
+        {page === 'lms' && (
           <LmsPage
             customers={customers}
             selectedCustomerId={selectedCustomerId}
@@ -182,8 +156,27 @@ function App() {
             onAddCustomer={handleAddCustomer}
             applications={applications}
             onUpdateApplicationStatus={handleUpdateApplicationStatus}
+            users={users}
+            onAddUser={handleAddUser}
+            onToggleUserStatus={handleToggleUserStatus}
+            settings={settings}
+            onChangeSettings={setSettings}
+            customProducts={customProducts}
+            onCreateProduct={handleCreateProduct}
           />
-        ) : (
+        )}
+
+        {page === 'demo' && (
+          <DemoPage
+            applications={applications}
+            settings={settings}
+            onCreateDemoCustomer={handleCreateDemoCustomer}
+            onApply={handleApply}
+            onCloseApplication={handleCloseApplication}
+          />
+        )}
+
+        {page === 'main' && (
           <main className="app-shell__workspace">
             <section className="app-shell__panel">
               <WhitelistPage
@@ -196,80 +189,14 @@ function App() {
 
             <div className="app-shell__preview">
               <PhoneShell>
-                {screen === 'home' && (
-                  <FinancialPowerHome
-                    customer={selectedCustomer}
-                    remainingFinancialPower={remainingFinancialPower}
-                    existingLoanExposure={existingLoanExposure}
-                    existingCardExposure={existingCardExposure}
-                    existingTotalExposure={existingTotalExposure}
-                    settings={settings}
-                    activeApplications={activeApplications}
-                    onNavigate={setScreen}
-                    onGoToLoan={handleGoToLoan}
-                    onGoToCard={handleGoToCard}
-                  />
-                )}
-                {screen === 'active-products' && (
-                  <ActiveProducts
-                    activeApplications={activeApplications}
-                    onBack={goHome}
-                    onViewLoan={handleViewLoan}
-                    onViewCard={handleViewCard}
-                  />
-                )}
-                {screen === 'breakdown' && (
-                  <FinancialPowerBreakdown
-                    customer={selectedCustomer}
-                    remainingFinancialPower={remainingFinancialPower}
-                    existingLoanExposure={existingLoanExposure}
-                    existingCardExposure={existingCardExposure}
-                    existingTotalExposure={existingTotalExposure}
-                    settings={settings}
-                    onBack={goHome}
-                    onNavigate={setScreen}
-                  />
-                )}
-                {screen === 'loan' && (
-                  <LoanApplication
-                    customer={selectedCustomer}
-                    remainingFinancialPower={remainingFinancialPower}
-                    existingLoanExposure={existingLoanExposure}
-                    existingTotalExposure={existingTotalExposure}
-                    settings={settings}
-                    initialAmount={pendingLoanAmount}
-                    onBack={goHome}
-                    onApply={(fields) => handleApply('loan', fields)}
-                  />
-                )}
-                {screen === 'card' && (
-                  <CreditCardApplication
-                    customer={selectedCustomer}
-                    remainingFinancialPower={remainingFinancialPower}
-                    existingCardExposure={existingCardExposure}
-                    existingTotalExposure={existingTotalExposure}
-                    settings={settings}
-                    initialAmount={pendingCardAmount}
-                    onBack={goHome}
-                    onApply={(fields) => handleApply('card', fields)}
-                  />
-                )}
-                {screen === 'loan-account' && viewingLoanApplication && (
-                  <LoanAccount
-                    application={viewingLoanApplication}
-                    customer={selectedCustomer}
-                    onBack={goHome}
-                    onPayoff={handleCloseApplication}
-                  />
-                )}
-                {screen === 'card-account' && viewingCardApplication && (
-                  <CardAccount
-                    application={viewingCardApplication}
-                    customer={selectedCustomer}
-                    onBack={goHome}
-                    onClose={handleCloseApplication}
-                  />
-                )}
+                <CustomerJourney
+                  key={selectedCustomerRaw.id}
+                  customerRaw={selectedCustomerRaw}
+                  applications={applications}
+                  settings={settings}
+                  onApply={(type, fields) => handleApply(selectedCustomerRaw.id, selectedCustomerRaw.name, type, fields)}
+                  onCloseApplication={handleCloseApplication}
+                />
               </PhoneShell>
             </div>
           </main>

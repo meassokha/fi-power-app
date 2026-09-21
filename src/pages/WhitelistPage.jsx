@@ -17,7 +17,7 @@ const emptyForm = {
 }
 
 const COLUMNS =
-  '100px minmax(140px, 1.4fr) 65px minmax(150px, 1.2fr) 140px 140px 150px 90px 80px'
+  '100px minmax(140px, 1.4fr) 65px minmax(150px, 1.2fr) 140px 140px 150px 90px 80px 105px 105px'
 
 export default function WhitelistPage({ customers, selectedCustomerId, onSelect, onAddCustomer }) {
   const [isAdding, setIsAdding] = useState(false)
@@ -95,6 +95,8 @@ export default function WhitelistPage({ customers, selectedCustomerId, onSelect,
             <span role="columnheader" className="num-col">Total Monthly Installment</span>
             <span role="columnheader" className="center-col">Min DSCR</span>
             <span role="columnheader" className="num-col">Rate</span>
+            <span role="columnheader">Upload Date</span>
+            <span role="columnheader">Expiry Date</span>
           </div>
 
           <div role="rowgroup">
@@ -133,6 +135,8 @@ export default function WhitelistPage({ customers, selectedCustomerId, onSelect,
                     </span>
                   </span>
                   <span role="cell" className="num num-col">{(customer.interestRate * 100).toFixed(0)}%</span>
+                  <span role="cell" className="num">{customer.uploadDate}</span>
+                  <span role="cell" className="num">{customer.expiryDate}</span>
                 </div>
               )
             })}
@@ -141,9 +145,9 @@ export default function WhitelistPage({ customers, selectedCustomerId, onSelect,
       </div>
 
       {isAdding ? (
-        <form className="whitelist__add-form" onSubmit={handleSubmit}>
-          <div className="whitelist__add-grid">
-            <label className="whitelist__field">
+        <form className="admin-add-form" onSubmit={handleSubmit}>
+          <div className="admin-add-grid">
+            <label className="admin-field">
               <span>Customer name</span>
               <input
                 type="text"
@@ -153,7 +157,7 @@ export default function WhitelistPage({ customers, selectedCustomerId, onSelect,
                 autoFocus
               />
             </label>
-            <label className="whitelist__field">
+            <label className="admin-field">
               <span>Monthly income ($)</span>
               <input
                 type="number"
@@ -163,7 +167,7 @@ export default function WhitelistPage({ customers, selectedCustomerId, onSelect,
                 placeholder="e.g. 1000"
               />
             </label>
-            <label className="whitelist__field">
+            <label className="admin-field">
               <span>Obligation &middot; Wing Bank ($)</span>
               <input
                 type="number"
@@ -173,7 +177,7 @@ export default function WhitelistPage({ customers, selectedCustomerId, onSelect,
                 placeholder="0"
               />
             </label>
-            <label className="whitelist__field">
+            <label className="admin-field">
               <span>Obligation &middot; Other Banks ($)</span>
               <input
                 type="number"
@@ -183,7 +187,7 @@ export default function WhitelistPage({ customers, selectedCustomerId, onSelect,
                 placeholder="0"
               />
             </label>
-            <label className="whitelist__field">
+            <label className="admin-field">
               <span>Source of income</span>
               <select value={form.sourceOfIncome} onChange={updateField('sourceOfIncome')}>
                 {SOURCE_OF_INCOME_OPTIONS.map((option) => (
@@ -208,17 +212,17 @@ export default function WhitelistPage({ customers, selectedCustomerId, onSelect,
             </span>
           </div>
 
-          <div className="whitelist__add-actions">
-            <button type="button" className="whitelist__cancel-btn" onClick={handleCancel}>
+          <div className="admin-add-actions">
+            <button type="button" className="admin-cancel-btn" onClick={handleCancel}>
               Cancel
             </button>
-            <button type="submit" className="whitelist__submit-btn" disabled={!canSubmit}>
+            <button type="submit" className="admin-submit-btn" disabled={!canSubmit}>
               Add Customer
             </button>
           </div>
         </form>
       ) : (
-        <button type="button" className="whitelist__add-trigger" onClick={() => setIsAdding(true)}>
+        <button type="button" className="admin-add-trigger" onClick={() => setIsAdding(true)}>
           <PlusIcon />
           <span>Add new customer</span>
         </button>

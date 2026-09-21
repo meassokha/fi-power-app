@@ -1,4 +1,11 @@
+import { todayIsoDate } from '../utils/dates'
+
 export const SOURCE_OF_INCOME_OPTIONS = ['Wing Payroll', 'Valida']
+
+// Seed customers are treated as uploaded the moment the app loads, so their
+// expiry date (upload date + 30 days) is always valid rather than a stale
+// hardcoded date.
+const seedUploadDate = todayIsoDate()
 
 export const initialCustomers = [
   {
@@ -8,6 +15,7 @@ export const initialCustomers = [
     obligationWingBank: 120,
     obligationOtherBanks: 80,
     sourceOfIncome: 'Wing Payroll',
+    uploadDate: seedUploadDate,
   },
   {
     id: 'WB-10456',
@@ -16,6 +24,7 @@ export const initialCustomers = [
     obligationWingBank: 200,
     obligationOtherBanks: 150,
     sourceOfIncome: 'Wing Payroll',
+    uploadDate: seedUploadDate,
   },
   {
     id: 'WB-10789',
@@ -24,6 +33,7 @@ export const initialCustomers = [
     obligationWingBank: 50,
     obligationOtherBanks: 0,
     sourceOfIncome: 'Valida',
+    uploadDate: seedUploadDate,
   },
   {
     id: 'WB-11024',
@@ -32,6 +42,7 @@ export const initialCustomers = [
     obligationWingBank: 400,
     obligationOtherBanks: 300,
     sourceOfIncome: 'Valida',
+    uploadDate: seedUploadDate,
   },
   {
     id: 'WB-11390',
@@ -40,6 +51,7 @@ export const initialCustomers = [
     obligationWingBank: 0,
     obligationOtherBanks: 120,
     sourceOfIncome: 'Wing Payroll',
+    uploadDate: seedUploadDate,
   },
   {
     id: 'WB-11587',
@@ -48,6 +60,7 @@ export const initialCustomers = [
     obligationWingBank: 300,
     obligationOtherBanks: 250,
     sourceOfIncome: 'Wing Payroll',
+    uploadDate: seedUploadDate,
   },
   {
     id: 'WB-11802',
@@ -56,6 +69,7 @@ export const initialCustomers = [
     obligationWingBank: 180,
     obligationOtherBanks: 90,
     sourceOfIncome: 'Valida',
+    uploadDate: seedUploadDate,
   },
   {
     id: 'WB-12015',
@@ -64,6 +78,7 @@ export const initialCustomers = [
     obligationWingBank: 500,
     obligationOtherBanks: 400,
     sourceOfIncome: 'Valida',
+    uploadDate: seedUploadDate,
   },
 ]
 

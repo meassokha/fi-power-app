@@ -1,11 +1,15 @@
 import { useState } from 'react'
 import WhitelistPage from './WhitelistPage'
 import ApplicationsPanel from './ApplicationsPanel'
+import UserManagementPage from './UserManagementPage'
+import ProductConfigurationPage from './ProductConfigurationPage'
 import './LmsPage.css'
 
 const MENU = [
   { key: 'whitelist', label: 'Whitelist' },
   { key: 'applications', label: 'Loan / Card Application' },
+  { key: 'users', label: 'User Management' },
+  { key: 'products', label: 'Product Configuration' },
 ]
 
 export default function LmsPage({
@@ -15,6 +19,13 @@ export default function LmsPage({
   onAddCustomer,
   applications,
   onUpdateApplicationStatus,
+  users,
+  onAddUser,
+  onToggleUserStatus,
+  settings,
+  onChangeSettings,
+  customProducts,
+  onCreateProduct,
 }) {
   const [activeMenu, setActiveMenu] = useState('applications')
 
@@ -34,15 +45,27 @@ export default function LmsPage({
       </aside>
 
       <div className="lms-page__content">
-        {activeMenu === 'whitelist' ? (
+        {activeMenu === 'whitelist' && (
           <WhitelistPage
             customers={customers}
             selectedCustomerId={selectedCustomerId}
             onSelect={onSelectCustomer}
             onAddCustomer={onAddCustomer}
           />
-        ) : (
+        )}
+        {activeMenu === 'applications' && (
           <ApplicationsPanel applications={applications} onUpdateStatus={onUpdateApplicationStatus} />
+        )}
+        {activeMenu === 'users' && (
+          <UserManagementPage users={users} onAddUser={onAddUser} onToggleStatus={onToggleUserStatus} />
+        )}
+        {activeMenu === 'products' && (
+          <ProductConfigurationPage
+            settings={settings}
+            onChangeSettings={onChangeSettings}
+            customProducts={customProducts}
+            onCreateProduct={onCreateProduct}
+          />
         )}
       </div>
     </div>

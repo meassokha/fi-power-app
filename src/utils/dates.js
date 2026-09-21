@@ -20,6 +20,13 @@ export function addMonthsToDate(isoDate, months) {
   return toLocalIsoDate(date)
 }
 
+export function addDaysToDate(isoDate, days) {
+  const [y, m, d] = isoDate.split('-').map(Number)
+  const date = new Date(y, m - 1, d)
+  date.setDate(date.getDate() + days)
+  return toLocalIsoDate(date)
+}
+
 export function startOfToday() {
   const d = new Date()
   d.setHours(0, 0, 0, 0)
