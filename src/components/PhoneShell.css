@@ -40,10 +40,13 @@
 @media (min-width: 431px) {
   .phone-frame {
     box-sizing: border-box;
+    /* Fixed, natural phone size — never shrunk to fit the viewport. Making
+       the frame (or its inner screens) responsive to a short/narrow window
+       just cramps and reflows content badly; a real phone mockup reads
+       better staying full-size, with the surrounding page scrolling to
+       reach it instead. */
     width: 390px;
-    /* Shrink to fit whatever height the workspace actually has instead of
-       forcing the natural size and forcing a scrollbar on shorter screens. */
-    height: min(950px, calc(100vh - 130px));
+    height: 800px;
     padding: 14px;
     margin: 12px auto;
     border-radius: 46px;
