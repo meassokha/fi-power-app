@@ -5,6 +5,11 @@ export const DEFAULT_SETTINGS = {
   maxLoanLimit: 22000,
   maxCardLimit: 10000,
   cardInterestRate: 0.18,
+  cardAnnualFee: 0,
+  // Whether each built-in product is offered to customers at all — toggled
+  // from Product Configuration. Dream Card starts inactive.
+  loanActive: true,
+  cardActive: false,
   // Combined ceiling across every active loan principal + card limit a
   // single customer can hold at once, regardless of how much Financial
   // Power or per-product headroom they'd otherwise qualify for.

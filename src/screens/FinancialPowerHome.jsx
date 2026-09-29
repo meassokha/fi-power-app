@@ -1,8 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import BottomNav from '../components/BottomNav'
-import { BellIcon, CardsIcon, ClockIcon, GridIcon, InfoIcon, LoanIcon } from '../components/icons'
+import { BellIcon, CardsIcon, ClockIcon, EditIcon, GridIcon, InfoIcon, LoanIcon } from '../components/icons'
 import { MIN_CREDIT_LIMIT, computeCardEligibility } from '../utils/creditCardCalculations'
-import { MIN_LOAN_AMOUNT, computeLoanEligibility, computeLoanOffer } from '../utils/loanCalculations'
+import {
+  MIN_LOAN_AMOUNT,
+  cashOnHandForLoanAmount,
+  computeLoanEligibility,
+  computeLoanOffer,
+  loanAmountForCashOnHand,
+  roundDownToHundred,
+} from '../utils/loanCalculations'
 import './FinancialPowerHome.css'
 
 const TENORS = [6, 12, 24, 36]
@@ -11,6 +18,7 @@ const OFFER_EXPIRY_DAYS = 30
 
 export default function FinancialPowerHome({
   customer,
+  loanProductName,
   remainingFinancialPower,
   existingLoanExposure,
   existingCardExposure,
@@ -22,8 +30,11 @@ export default function FinancialPowerHome({
   onGoToCard,
 }) {
   const [tenor, setTenor] = useState(36)
-  const [loanOverride, setLoanOverride] = useState(null)
+  const [cashOnHandOverride, setCashOnHandOverride] = useState(null)
   const [cardOverride, setCardOverride] = useState(null)
+  const [isEditingCash, setIsEditingCash] = useState(false)
+  const [cashInput, setCashInput] = useState('')
+  const cashInputRef = useRef(null)
 
   const initials = customer.name
     .split(' ')
@@ -49,11 +60,19 @@ export default function FinancialPowerHome({
     settings,
   })
 
-  const loanAmount = loanEligibility.eligible
-    ? Math.min(loanOverride ?? loanEligibility.maxLoan, loanEligibility.maxLoan)
+  // Customers pick how much cash they want in hand; the loan amount (what
+  // they'll actually owe) is the larger figure once the processing fee is
+  // added back on top — no PPI is offered on this quick-pick tile.
+  const feeRate = settings.processingFeeWithoutPpi
+  const minCashOnHand = roundDownToHundred(cashOnHandForLoanAmount(MIN_LOAN_AMOUNT, feeRate))
+  const maxCashOnHand = roundDownToHundred(cashOnHandForLoanAmount(loanEligibility.maxLoan, feeRate))
+
+  const cashOnHand = loanEligibility.eligible
+    ? Math.min(cashOnHandOverride ?? maxCashOnHand, maxCashOnHand)
     : 0
+  const loanAmount = loanEligibility.eligible ? Math.round(loanAmountForCashOnHand(cashOnHand, feeRate)) : 0
   const loanSliderPct = loanEligibility.eligible
-    ? ((loanAmount - MIN_LOAN_AMOUNT) / Math.max(loanEligibility.maxLoan - MIN_LOAN_AMOUNT, 1)) * 100
+    ? ((cashOnHand - minCashOnHand) / Math.max(maxCashOnHand - minCashOnHand, 1)) * 100
     : 0
 
   const loanOffer = loanEligibility.eligible
@@ -72,12 +91,43 @@ export default function FinancialPowerHome({
   const cardSliderPct = cardEligibility.eligible ? (cardAmount / Math.max(cardEligibility.limit, 1)) * 100 : 0
   const cardBelowMin = cardAmount > 0 && cardAmount < MIN_CREDIT_LIMIT
 
-  const availablePct = customer.financialPower > 0 ? Math.min((remainingFinancialPower / customer.financialPower) * 100, 100) : 0
+  // Live preview: as the customer drags the cash-on-hand amount, show how
+  // much of their Financial Power this specific loan would use up. This
+  // never feeds back into the eligibility math above, which always keys off
+  // the real remainingFinancialPower — otherwise the ceiling could shrink
+  // in on itself as the preview dropped.
+  const previewRemaining = loanEligibility.eligible
+    ? Math.max(Math.floor(remainingFinancialPower - loanOffer.monthlyInstallment), 0)
+    : remainingFinancialPower
+  const availablePct =
+    customer.financialPower > 0 ? Math.min((previewRemaining / customer.financialPower) * 100, 100) : 0
+
+  useEffect(() => {
+    if (isEditingCash) {
+      cashInputRef.current?.focus()
+      cashInputRef.current?.select()
+    }
+  }, [isEditingCash])
 
   function handleNavigate(target) {
     if (target === 'loan') return onGoToLoan(loanAmount, tenor)
     if (target === 'card') return onGoToCard(cardAmount)
     onNavigate(target)
+  }
+
+  function openCashEditor() {
+    setCashInput(String(cashOnHand))
+    setIsEditingCash(true)
+  }
+
+  function commitCashInput() {
+    const parsed = Number(cashInput)
+    const clamped =
+      Number.isFinite(parsed) && cashInput.trim() !== ''
+        ? Math.min(Math.max(roundDownToHundred(Math.round(parsed)), minCashOnHand), maxCashOnHand)
+        : cashOnHand
+    setCashOnHandOverride(clamped)
+    setIsEditingCash(false)
   }
 
   const tenorPicker = (
@@ -143,7 +193,7 @@ export default function FinancialPowerHome({
             <div className="fp-home__hero-usage-row">
               <span>Available</span>
               <span className="num">
-                ${remainingFinancialPower.toLocaleString()} of ${customer.financialPower}
+                ${previewRemaining.toLocaleString()} of ${customer.financialPower}
               </span>
             </div>
             <div className="fp-home__hero-usage-track">
@@ -157,6 +207,7 @@ export default function FinancialPowerHome({
           </div>
         </div>
 
+        {settings.loanActive && (
         <div className="fp-home__product fp-home__product--loan">
           <div className="fp-home__product-glow" />
           <span className="fp-home__product-expiry">Expires in {OFFER_EXPIRY_DAYS} days</span>
@@ -164,27 +215,54 @@ export default function FinancialPowerHome({
             <span className="fp-home__product-icon">
               <LoanIcon width={16} height={16} />
             </span>
-            <span className="fp-home__product-name">Consumer Loan</span>
+            <span className="fp-home__product-name">{loanProductName}</span>
           </div>
 
           {loanEligibility.eligible ? (
             <>
-              <div className="num fp-home__product-amount">${loanAmount.toLocaleString()}</div>
+              {isEditingCash ? (
+                <div className="fp-home__product-amount-edit">
+                  <span>$</span>
+                  <input
+                    ref={cashInputRef}
+                    type="number"
+                    inputMode="numeric"
+                    min={minCashOnHand}
+                    max={maxCashOnHand}
+                    step={100}
+                    className="num fp-home__product-amount-input"
+                    value={cashInput}
+                    onChange={(e) => setCashInput(e.target.value)}
+                    onBlur={commitCashInput}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') commitCashInput()
+                      if (e.key === 'Escape') setIsEditingCash(false)
+                    }}
+                  />
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="num fp-home__product-amount fp-home__product-amount--editable"
+                  onClick={openCashEditor}
+                >
+                  ${cashOnHand.toLocaleString()}
+                  <EditIcon className="fp-home__product-amount-edit-icon" />
+                </button>
+              )}
               <input
                 type="range"
                 className="range-input fp-home__product-range"
-                min={MIN_LOAN_AMOUNT}
-                max={loanEligibility.maxLoan}
-                step={10}
-                value={loanAmount}
-                onChange={(e) => setLoanOverride(Number(e.target.value))}
+                min={minCashOnHand}
+                max={maxCashOnHand}
+                step={100}
+                value={cashOnHand}
+                onChange={(e) => setCashOnHandOverride(Number(e.target.value))}
                 style={{ '--fill': `${loanSliderPct}%` }}
               />
               {tenorPicker}
               <div className="fp-home__product-footer">
-                <span className="fp-home__product-caption">
-                  Cash on hand ${Math.round(loanOffer.cashOnHand).toLocaleString()}
-                </span>
+                <span className="fp-home__product-caption">Loan amount ${loanAmount.toLocaleString()}</span>
                 <button type="button" className="fp-home__product-apply" onClick={() => handleNavigate('loan')}>
                   Apply
                 </button>
@@ -197,7 +275,9 @@ export default function FinancialPowerHome({
             </>
           )}
         </div>
+        )}
 
+        {settings.cardActive && (
         <div className="fp-home__product fp-home__product--card">
           <div className="fp-home__product-glow" />
           <span className="fp-home__product-expiry">Expires in {OFFER_EXPIRY_DAYS} days</span>
@@ -222,7 +302,7 @@ export default function FinancialPowerHome({
                 style={{ '--fill': `${cardSliderPct}%` }}
               />
               <div className="fp-home__product-validity">
-                Free annual fee &middot; Card validity: {CARD_VALIDITY_YEARS} years
+                {settings.cardAnnualFee > 0 ? `$${settings.cardAnnualFee.toLocaleString()} annual fee` : 'Free annual fee'} &middot; Card validity: {CARD_VALIDITY_YEARS} years
               </div>
               <div className="fp-home__product-footer">
                 <span className="fp-home__product-caption">
@@ -242,6 +322,7 @@ export default function FinancialPowerHome({
             <p className="fp-home__product-ineligible">Not eligible for a card right now</p>
           )}
         </div>
+        )}
 
         <button type="button" className="fp-home__product-tip-link" onClick={() => {}}>
           Get a higher loan with an extra income source

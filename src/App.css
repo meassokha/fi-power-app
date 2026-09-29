@@ -9,10 +9,26 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  row-gap: 10px;
   padding: 16px clamp(20px, 4vw, 40px);
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface);
   flex-shrink: 0;
+}
+
+.app-shell__demo-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.app-shell__demo-controls-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-right: 2px;
 }
 
 .app-shell__brand {
@@ -51,6 +67,18 @@
 .app-shell__nav-tab.is-active {
   background: var(--color-primary);
   border-color: var(--color-primary);
+  color: white;
+}
+
+.app-shell__nav-tab--reset {
+  border-color: var(--color-warning);
+  background: var(--color-warning);
+  color: white;
+}
+
+.app-shell__nav-tab--reset:hover {
+  background: oklch(58% 0.15 80);
+  border-color: oklch(58% 0.15 80);
   color: white;
 }
 

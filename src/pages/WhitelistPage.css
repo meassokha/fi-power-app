@@ -94,9 +94,16 @@
   overflow: auto;
 }
 
+/* Must be >= the row grid's own minimum: sum of COLUMNS' track minimums
+   (975px fixed + 140px + 150px for the two minmax() tracks = 1265px) + 10
+   gaps of 16px (160px) + 20px horizontal row padding on each side (40px) =
+   1465px. Too small and the grid overflows the row's box, which clips the
+   row/header background off the rightmost column(s) instead of resizing
+   the table (this happened for real — recompute this by hand whenever
+   COLUMNS changes). */
 .whitelist__table {
   width: 100%;
-  min-width: 1300px;
+  min-width: 1480px;
 }
 
 .whitelist__row {

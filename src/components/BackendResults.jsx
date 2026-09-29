@@ -2,20 +2,14 @@ import { CheckIcon } from './icons'
 import { withDerivedFields } from '../utils/customerRules'
 import './BackendResults.css'
 
-export default function BackendResults({ profile, isWingPayroll, revealedCount }) {
+export default function BackendResults({ profile, items, revealedCount, completed }) {
   if (!profile) return null
 
   const derived = withDerivedFields(profile)
   const dscrPillClass = derived.minDscr <= 2.5 ? 'pill-success' : 'pill-primary'
 
-  const items = [
-    { id: 'payroll', label: isWingPayroll ? 'Customer is a Wing Bank Payroll Customer' : 'Customer is not a Wing Bank Payroll Customer' },
-    { id: 'salary', label: `Last 6-month average salary: $${profile.monthlyIncome.toLocaleString()}` },
-    { id: 'wing-obligation', label: `Wing Bank monthly installment obligation: $${profile.obligationWingBank.toLocaleString()}` },
-    { id: 'other-obligation', label: `Other Bank monthly installment obligation: $${profile.obligationOtherBanks.toLocaleString()}` },
-  ].slice(0, revealedCount)
-
-  const showCalculation = revealedCount >= 5
+  const visibleItems = items.slice(0, revealedCount)
+  const showCalculation = completed
 
   return (
     <div className="backend-results">
@@ -24,14 +18,14 @@ export default function BackendResults({ profile, isWingPayroll, revealedCount }
         <span>Results</span>
       </div>
 
-      {items.length === 0 ? (
+      {visibleItems.length === 0 ? (
         <p className="backend-results__empty">Results will appear here as each check completes.</p>
       ) : (
         <ul className="backend-results__list">
-          {items.map((item) => (
-            <li key={item.id} className="backend-results__item">
+          {visibleItems.map((label, i) => (
+            <li key={i} className="backend-results__item">
               <CheckIcon width={13} height={13} />
-              <span>{item.label}</span>
+              <span>{label}</span>
             </li>
           ))}
         </ul>
@@ -48,6 +42,12 @@ export default function BackendResults({ profile, isWingPayroll, revealedCount }
           <div className="backend-results__calc-row">
             <span>Min DSCR</span>
             <span className="num">{derived.minDscr.toFixed(1)}x</span>
+          </div>
+          <div className="backend-results__calc-row">
+            <span>Customer DSCR</span>
+            <span className={`num ${derived.isEligible ? '' : 'backend-results__calc-value--danger'}`}>
+              {Number.isFinite(derived.customerDscr) ? `${derived.customerDscr.toFixed(1)}x` : '∞'}
+            </span>
           </div>
           <div className="backend-results__calc-row">
             <span>Interest rate</span>

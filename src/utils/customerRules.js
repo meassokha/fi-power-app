@@ -34,6 +34,13 @@ export function withDerivedFields(customer) {
   const totalObligation = customer.obligationWingBank + customer.obligationOtherBanks
   const maxAllowedObligation = customer.monthlyIncome / minDscr
   const financialPower = Math.max(Math.round(maxAllowedObligation - totalObligation), 0)
+  // Customer DSCR: income divided by (Wing Bank + other bank) obligations —
+  // the real-world ratio minDscr sets a floor for. Below minDscr, obligations
+  // already exceed what's affordable (financialPower would have gone
+  // negative before the Math.max clamp above), so the customer isn't
+  // eligible at all.
+  const customerDscr = totalObligation > 0 ? customer.monthlyIncome / totalObligation : Infinity
+  const isEligible = customerDscr >= minDscr
 
   return {
     ...customer,
@@ -43,6 +50,8 @@ export function withDerivedFields(customer) {
     totalObligation,
     maxAllowedObligation: Math.round(maxAllowedObligation),
     financialPower,
+    customerDscr,
+    isEligible,
     expiryDate: customer.uploadDate ? addDaysToDate(customer.uploadDate, WHITELIST_VALIDITY_DAYS) : null,
   }
 }

@@ -87,27 +87,37 @@ export default function FinancialPowerBreakdown({
         </div>
 
         <div className="fp-breakdown__estimates">
-          <div className="card">
+          <div className="card fp-breakdown__estimate-card">
             <div className="fp-breakdown__estimate-label">Est. max loan</div>
             <div className="num fp-breakdown__estimate-value">
               {loanEligible ? `$${maxLoan.toLocaleString()}` : 'Not eligible'}
             </div>
             <div className="fp-breakdown__estimate-caption">over {REFERENCE_TENOR} months</div>
+            <button
+              type="button"
+              className="btn btn-primary fp-breakdown__estimate-apply"
+              disabled={!loanEligible}
+              onClick={() => onNavigate('loan')}
+            >
+              Apply Loan
+            </button>
           </div>
-          <div className="card">
+          <div className="card fp-breakdown__estimate-card">
             <div className="fp-breakdown__estimate-label">Est. credit limit</div>
             <div className="num fp-breakdown__estimate-value">
               {cardEligible ? `$${maxCardLimit.toLocaleString()}` : 'Not eligible'}
             </div>
             <div className="fp-breakdown__estimate-caption">revolving</div>
+            <button
+              type="button"
+              className="btn btn-primary fp-breakdown__estimate-apply"
+              disabled={!cardEligible}
+              onClick={() => onNavigate('card')}
+            >
+              Apply Card
+            </button>
           </div>
         </div>
-      </div>
-
-      <div className="fp-breakdown__cta">
-        <button type="button" className="btn btn-primary" onClick={() => onNavigate('loan')}>
-          Continue to Apply
-        </button>
       </div>
     </>
   )

@@ -1,0 +1,127 @@
+.app-table {
+  padding: 20px clamp(20px, 3vw, 32px) 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.app-table__intro {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.app-table__title {
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+
+.app-table__subtitle {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--color-text);
+  max-width: 620px;
+}
+
+.app-table__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.app-table__search {
+  flex: 1;
+  min-width: 240px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  padding: 0 14px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-strong);
+  background: var(--color-surface);
+}
+
+.app-table__search:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.app-table__status-filter {
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  padding: 0 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-strong);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.app-table__empty {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  padding: 16px;
+  border: 1.5px dashed var(--color-border);
+  border-radius: 12px;
+  text-align: center;
+  margin: 0;
+}
+
+.app-table__wrap {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  overflow: auto;
+}
+
+.app-table__table {
+  width: 100%;
+  min-width: 980px;
+}
+
+.app-table__status {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.app-table__status--pending {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  border-color: transparent;
+}
+
+.app-table__status--active {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border-color: transparent;
+}
+
+.app-table__status--overdue {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: transparent;
+}
+
+.app-table__status--written-off {
+  background: oklch(92% 0.035 320);
+  color: oklch(45% 0.1 320);
+  border-color: transparent;
+}
+
+.app-table__status--closed {
+  background: oklch(93% 0.01 254);
+  color: var(--color-text);
+  border-color: transparent;
+}

@@ -26,7 +26,7 @@
 
 .product-config__layout {
   display: grid;
-  grid-template-columns: minmax(240px, 320px) 1fr;
+  grid-template-columns: minmax(300px, 400px) 1fr;
   gap: 18px;
   align-items: start;
 }
@@ -63,6 +63,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  flex-wrap: wrap;
+}
+
+.product-config__list-item-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .product-config__list-item-name {
@@ -107,6 +115,58 @@
   color: var(--color-text);
   margin-top: 4px;
   max-width: 480px;
+}
+
+.product-config__status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: oklch(96% 0.008 254);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.product-config__status-on {
+  color: var(--color-success);
+}
+
+.product-config__status-off {
+  color: var(--color-text-muted);
+}
+
+.product-config__toggle {
+  flex-shrink: 0;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  border: none;
+  background: var(--color-border);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.product-config__toggle.is-on {
+  background: var(--color-success);
+}
+
+.product-config__toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: white;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+  transition: transform 0.15s ease;
+}
+
+.product-config__toggle.is-on .product-config__toggle-knob {
+  transform: translateX(18px);
 }
 
 .product-config__fields {

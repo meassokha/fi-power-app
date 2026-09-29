@@ -10,7 +10,7 @@ import './LoanAccount.css'
 
 const SCHEDULE_COLUMNS = '40px 1fr 1fr 1fr 1fr'
 
-export default function LoanAccount({ application, customer, onBack, onPayoff }) {
+export default function LoanAccount({ application, customer, productName = 'Consumer Loan', onBack, onPayoff }) {
   const [paidOff, setPaidOff] = useState(false)
 
   const monthlyInstallment = computeEmi(application.amount, customer.interestRate, application.tenor)
@@ -29,7 +29,7 @@ export default function LoanAccount({ application, customer, onBack, onPayoff })
   if (paidOff) {
     return (
       <>
-        <ScreenHeader title="Consumer Loan" onBack={onBack} />
+        <ScreenHeader title={productName} onBack={onBack} />
         <div className="loan-account__body loan-account__body--centered">
           <div className="loan-account__success">
             <span className="loan-account__success-icon">
@@ -53,7 +53,7 @@ export default function LoanAccount({ application, customer, onBack, onPayoff })
 
   return (
     <>
-      <ScreenHeader title="Consumer Loan" subtitle="Account summary" onBack={onBack} />
+      <ScreenHeader title={productName} subtitle="Account summary" onBack={onBack} />
 
       <div className="loan-account__body">
         <div className="card loan-account__summary">

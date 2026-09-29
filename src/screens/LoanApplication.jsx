@@ -1,13 +1,20 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import ScreenHeader from '../components/ScreenHeader'
-import { CheckIcon } from '../components/icons'
-import { MIN_LOAN_AMOUNT, computeLoanEligibility, computeLoanOffer } from '../utils/loanCalculations'
+import { CheckIcon, EditIcon } from '../components/icons'
+import {
+  MIN_LOAN_AMOUNT,
+  computeLoanEligibility,
+  computeLoanOffer,
+  loanAmountForTargetCashOnHand,
+  roundDownToHundred,
+} from '../utils/loanCalculations'
 import './LoanApplication.css'
 
 const TENORS = [6, 12, 24, 36]
 
 export default function LoanApplication({
   customer,
+  productName = 'Consumer Loan',
   remainingFinancialPower,
   existingLoanExposure,
   existingTotalExposure,
@@ -19,8 +26,24 @@ export default function LoanApplication({
 }) {
   const [tenor, setTenor] = useState(initialTenor ?? 36)
   const [ppiSelected, setPpiSelected] = useState(false)
-  const [amountOverride, setAmountOverride] = useState(() => initialAmount ?? null)
+  // initialAmount arrives as a loan amount (carried over from the Home
+  // tile's own slider) — convert it once to its cash-on-hand equivalent so
+  // the two screens feel continuous despite tracking different quantities.
+  const [cashOnHandOverride, setCashOnHandOverride] = useState(() => {
+    if (initialAmount == null) return null
+    const cash = computeLoanOffer({
+      annualRate: customer.interestRate,
+      months: initialTenor ?? 36,
+      ppiSelected: false,
+      settings,
+      loanAmount: initialAmount,
+    }).cashOnHand
+    return roundDownToHundred(Math.round(cash))
+  })
   const [submitted, setSubmitted] = useState(false)
+  const [isEditingAmount, setIsEditingAmount] = useState(false)
+  const [amountInput, setAmountInput] = useState('')
+  const amountInputRef = useRef(null)
 
   const { eligible, maxLoan, cappedBy } = useMemo(
     () =>
@@ -35,19 +58,62 @@ export default function LoanApplication({
     [remainingFinancialPower, customer.interestRate, tenor, existingLoanExposure, existingTotalExposure, settings],
   )
 
-  const loanAmount = Math.min(amountOverride ?? maxLoan, maxLoan)
+  // Customers pick how much cash they want in hand; the loan amount (what
+  // they'll actually owe) is solved for numerically, since PPI's premium
+  // isn't a flat percentage of the loan (see loanAmountForTargetCashOnHand).
+  const cashOnHandFor = (amount) =>
+    eligible ? computeLoanOffer({ annualRate: customer.interestRate, months: tenor, ppiSelected, settings, loanAmount: amount }).cashOnHand : 0
+
+  const minCashOnHand = eligible ? roundDownToHundred(cashOnHandFor(MIN_LOAN_AMOUNT)) : 0
+  const maxCashOnHand = eligible ? roundDownToHundred(cashOnHandFor(maxLoan)) : 0
+
+  const cashOnHand = eligible ? Math.min(cashOnHandOverride ?? maxCashOnHand, maxCashOnHand) : 0
+
+  const loanAmount = useMemo(() => {
+    if (!eligible) return 0
+    return Math.round(
+      loanAmountForTargetCashOnHand({
+        targetCashOnHand: cashOnHand,
+        annualRate: customer.interestRate,
+        months: tenor,
+        ppiSelected,
+        settings,
+      }),
+    )
+  }, [eligible, cashOnHand, customer.interestRate, tenor, ppiSelected, settings])
 
   const offer = useMemo(() => {
     if (!eligible) return null
     return computeLoanOffer({ annualRate: customer.interestRate, months: tenor, ppiSelected, settings, loanAmount })
   }, [eligible, loanAmount, customer.interestRate, tenor, ppiSelected, settings])
 
-  const sliderPct = eligible ? ((loanAmount - MIN_LOAN_AMOUNT) / Math.max(maxLoan - MIN_LOAN_AMOUNT, 1)) * 100 : 0
+  const sliderPct = eligible ? ((cashOnHand - minCashOnHand) / Math.max(maxCashOnHand - minCashOnHand, 1)) * 100 : 0
   const capacityUsedPct = offer ? Math.min((offer.monthlyInstallment / remainingFinancialPower) * 100, 100) : 0
+
+  useEffect(() => {
+    if (isEditingAmount) {
+      amountInputRef.current?.focus()
+      amountInputRef.current?.select()
+    }
+  }, [isEditingAmount])
 
   function handleApply() {
     onApply({ amount: loanAmount, tenor, monthlyInstallment: offer.monthlyInstallment })
     setSubmitted(true)
+  }
+
+  function openAmountEditor() {
+    setAmountInput(String(cashOnHand))
+    setIsEditingAmount(true)
+  }
+
+  function commitAmountInput() {
+    const parsed = Number(amountInput)
+    const clamped = Number.isFinite(parsed) && amountInput.trim() !== ''
+      ? Math.min(Math.max(roundDownToHundred(Math.round(parsed)), minCashOnHand), maxCashOnHand)
+      : cashOnHand
+    setCashOnHandOverride(clamped)
+    setIsEditingAmount(false)
   }
 
   const tenorPicker = (
@@ -71,7 +137,7 @@ export default function LoanApplication({
   if (submitted) {
     return (
       <>
-        <ScreenHeader title="Consumer Loan" onBack={onBack} />
+        <ScreenHeader title={productName} onBack={onBack} />
         <div className="loan-apply__body loan-apply__body--centered">
           <div className="loan-apply__success">
             <span className="loan-apply__success-icon">
@@ -95,7 +161,7 @@ export default function LoanApplication({
 
   return (
     <>
-      <ScreenHeader title="Consumer Loan" onBack={onBack} />
+      <ScreenHeader title={productName} onBack={onBack} />
 
       {!eligible ? (
         <div className="loan-apply__body">
@@ -113,24 +179,52 @@ export default function LoanApplication({
         <>
           <div className="loan-apply__body">
             <div className="loan-apply__amount">
-              <div className="loan-apply__amount-label">Loan amount</div>
-              <div className="num loan-apply__amount-value">${loanAmount.toLocaleString()}</div>
+              <div className="loan-apply__amount-label">Cash on hand</div>
+              {isEditingAmount ? (
+                <div className="loan-apply__amount-edit">
+                  <span className="loan-apply__amount-edit-prefix">$</span>
+                  <input
+                    ref={amountInputRef}
+                    type="number"
+                    inputMode="numeric"
+                    min={minCashOnHand}
+                    max={maxCashOnHand}
+                    className="num loan-apply__amount-input"
+                    value={amountInput}
+                    onChange={(e) => setAmountInput(e.target.value)}
+                    onBlur={commitAmountInput}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') commitAmountInput()
+                      if (e.key === 'Escape') setIsEditingAmount(false)
+                    }}
+                  />
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="num loan-apply__amount-value loan-apply__amount-value--editable"
+                  onClick={openAmountEditor}
+                >
+                  ${cashOnHand.toLocaleString()}
+                  <EditIcon className="loan-apply__amount-edit-icon" />
+                </button>
+              )}
             </div>
 
             <div className="loan-apply__slider">
               <input
                 type="range"
                 className="range-input"
-                min={MIN_LOAN_AMOUNT}
-                max={maxLoan}
-                step={10}
-                value={loanAmount}
-                onChange={(e) => setAmountOverride(Number(e.target.value))}
+                min={minCashOnHand}
+                max={maxCashOnHand}
+                step={100}
+                value={cashOnHand}
+                onChange={(e) => setCashOnHandOverride(Number(e.target.value))}
                 style={{ '--fill': `${sliderPct}%` }}
               />
               <div className="loan-apply__slider-labels">
-                <span className="num">${MIN_LOAN_AMOUNT.toLocaleString()}</span>
-                <span className="num">${maxLoan.toLocaleString()} max</span>
+                <span className="num">${minCashOnHand.toLocaleString()}</span>
+                <span className="num">${maxCashOnHand.toLocaleString()} max</span>
               </div>
               <div className="loan-apply__slider-caption">Capped by {cappedBy}</div>
             </div>
@@ -162,6 +256,10 @@ export default function LoanApplication({
 
             <div className="card loan-apply__summary">
               <div className="loan-apply__summary-row">
+                <span>Loan amount</span>
+                <span className="num">${loanAmount.toLocaleString()}</span>
+              </div>
+              <div className="loan-apply__summary-row">
                 <span>Monthly installment</span>
                 <span className="num loan-apply__summary-highlight">
                   ${offer.monthlyInstallment.toFixed(2)} / mo
@@ -188,7 +286,7 @@ export default function LoanApplication({
               <div className="loan-apply__divider" />
               <div className="loan-apply__summary-row loan-apply__cash-row">
                 <span>Cash on hand</span>
-                <span className="num">${offer.cashOnHand.toFixed(2)}</span>
+                <span className="num">${cashOnHand.toLocaleString()}</span>
               </div>
               <div className="loan-apply__divider" />
               <div>

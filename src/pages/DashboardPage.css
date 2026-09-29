@@ -1,0 +1,239 @@
+.dashboard {
+  padding: 24px clamp(20px, 3vw, 32px) 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.dashboard__intro {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dashboard__title {
+  font-size: 28px;
+  letter-spacing: -0.02em;
+}
+
+.dashboard__subtitle {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text);
+  max-width: 640px;
+}
+
+/* Stat tiles */
+.dashboard__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.dash-stat {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dash-stat__label {
+  font-size: 12px;
+  color: var(--color-text);
+}
+
+.dash-stat__value {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text-strong);
+}
+
+/* Range selector */
+.dashboard__range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dashboard__range-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-right: 2px;
+}
+
+.dashboard__range-btn {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.dashboard__range-btn:hover {
+  border-color: var(--color-primary);
+}
+
+.dashboard__range-btn.is-selected {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+/* Panel grid */
+.dashboard__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 16px;
+}
+
+.dash-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 20px 20px;
+}
+
+.dash-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.dash-panel__title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-text-strong);
+}
+
+.dash-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-success);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dash-live__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-success);
+  animation: dash-live-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes dash-live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* Trend chart (SVG) */
+.dash-chart__svg {
+  width: 100%;
+  height: auto;
+}
+
+.dash-chart__grid {
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.dash-chart__axis-label {
+  font-size: 10px;
+  fill: var(--color-text-muted);
+  font-family: var(--font-body);
+}
+
+.dash-chart__area {
+  fill: var(--color-primary);
+  opacity: 0.1;
+  stroke: none;
+}
+
+.dash-chart__line {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dash-chart__dot {
+  fill: var(--color-primary);
+  stroke: var(--color-surface);
+  stroke-width: 2;
+}
+
+.dash-chart__end-label {
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--color-primary);
+  font-family: var(--font-body);
+}
+
+/* Ranked bar lists */
+.dash-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dash-bars__row {
+  display: grid;
+  grid-template-columns: minmax(90px, 140px) 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.dash-bars__label {
+  font-size: 12.5px;
+  color: var(--color-text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-bars__track {
+  height: 8px;
+  border-radius: 999px;
+  background: oklch(93% 0.01 254);
+}
+
+.dash-bars__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-primary);
+}
+
+.dash-bars__value {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-text-strong);
+  min-width: 56px;
+  text-align: right;
+}
+
+.dash-bars__empty {
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+  padding: 20px 0;
+  text-align: center;
+}

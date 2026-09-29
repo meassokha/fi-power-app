@@ -26,6 +26,63 @@
   line-height: 1;
 }
 
+.loan-apply__amount-value--editable {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
+  padding: 4px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+.loan-apply__amount-value--editable:hover {
+  background: var(--color-primary-light);
+}
+
+.loan-apply__amount-edit-icon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.loan-apply__amount-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.loan-apply__amount-edit-prefix {
+  font-size: 44px;
+  font-weight: 800;
+  color: var(--color-text-strong);
+}
+
+.loan-apply__amount-input {
+  width: 200px;
+  font-size: 44px;
+  font-weight: 800;
+  color: var(--color-primary);
+  line-height: 1;
+  border: none;
+  border-bottom: 2px solid var(--color-primary);
+  background: transparent;
+  text-align: center;
+  font-family: var(--font-body);
+}
+
+.loan-apply__amount-input:focus {
+  outline: none;
+}
+
+.loan-apply__amount-input::-webkit-inner-spin-button,
+.loan-apply__amount-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .loan-apply__slider {
   display: flex;
   flex-direction: column;

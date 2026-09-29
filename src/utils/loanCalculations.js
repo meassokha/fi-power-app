@@ -2,6 +2,51 @@ import { addMonthsToDate, startOfToday } from './dates'
 
 export const MIN_LOAN_AMOUNT = 530
 
+export function roundDownToHundred(value) {
+  return Math.floor(value / 100) * 100
+}
+
+// Customers pick how much cash they want in hand; the loan amount (what
+// they'll actually owe) is the larger figure once the processing fee is
+// added back on top. With no PPI selected, computeLoanOffer's cashOnHand is
+// just loanAmount * (1 - processingFeeRate), so these two are its inverse.
+export function cashOnHandForLoanAmount(loanAmount, processingFeeRate) {
+  return loanAmount * (1 - processingFeeRate)
+}
+
+export function loanAmountForCashOnHand(cashOnHand, processingFeeRate) {
+  const cashFactor = 1 - processingFeeRate
+  return cashFactor > 0 ? cashOnHand / cashFactor : 0
+}
+
+// Numerically inverts computeLoanOffer's cashOnHand for a target cash
+// amount. Needed wherever PPI can be selected: its premium comes from an
+// amortization schedule, not a flat percentage, so cashOnHand isn't a simple
+// fraction of loanAmount the way it is with PPI off — bisection stays exact
+// (and correct) either way by reusing computeLoanOffer itself as the model,
+// rather than re-deriving a parallel closed-form formula that could drift.
+export function loanAmountForTargetCashOnHand({ targetCashOnHand, annualRate, months, ppiSelected, settings }) {
+  if (targetCashOnHand <= 0) return 0
+  let lo = 0
+  let hi = Math.max(targetCashOnHand * 2, 1000)
+  while (
+    computeLoanOffer({ annualRate, months, ppiSelected, settings, loanAmount: hi }).cashOnHand < targetCashOnHand &&
+    hi < 1e9
+  ) {
+    hi *= 2
+  }
+  for (let i = 0; i < 40; i += 1) {
+    const mid = (lo + hi) / 2
+    const cash = computeLoanOffer({ annualRate, months, ppiSelected, settings, loanAmount: mid }).cashOnHand
+    if (cash < targetCashOnHand) {
+      lo = mid
+    } else {
+      hi = mid
+    }
+  }
+  return (lo + hi) / 2
+}
+
 // Monthly installment for a given principal (standard reducing-balance EMI).
 export function computeEmi(principal, annualRate, months) {
   const r = annualRate / 12

@@ -111,12 +111,18 @@ export default function CreditCardApplication({
                 <span>Est. minimum monthly payment (10%)</span>
                 <span className="num">${estMinPayment.toFixed(2)}</span>
               </div>
+              <div className="card-apply__summary-row">
+                <span>Annual fee</span>
+                <span className="num">
+                  {settings.cardAnnualFee > 0 ? `$${settings.cardAnnualFee.toLocaleString()}` : 'Free'}
+                </span>
+              </div>
             </div>
 
             <ul className="card-apply__benefits">
               <li>
                 <CheckIcon />
-                <span>No annual fee</span>
+                <span>{settings.cardAnnualFee > 0 ? `$${settings.cardAnnualFee.toLocaleString()} annual fee` : 'No annual fee'}</span>
               </li>
               <li>
                 <CheckIcon />

@@ -1,0 +1,45 @@
+.demo-rejected {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  padding: 32px;
+}
+
+.demo-rejected__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 26px;
+}
+
+.demo-rejected__title {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--color-danger);
+}
+
+.demo-rejected__message {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--color-text);
+  max-width: 260px;
+  margin: 0;
+}
+
+.demo-rejected__restart {
+  margin-top: 10px;
+  width: auto;
+  padding: 0 22px;
+}

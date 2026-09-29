@@ -7,15 +7,16 @@ import LoanAccount from '../screens/LoanAccount'
 import CardAccount from '../screens/CardAccount'
 import ActiveProducts from '../screens/ActiveProducts'
 import { withDerivedFields } from '../utils/customerRules'
-import { exposureByType, monthlyCommitment, totalExposure } from '../utils/applications'
+import { exposureByType, isOutstanding, monthlyCommitment, totalExposure } from '../utils/applications'
+import { resolveLoanProduct } from '../utils/loanProducts'
 
 // The full Financial Power screen flow (Home -> Breakdown / Loan / Card /
 // their account views / active products) for ONE customer. Reused by the
 // main admin preview (a customer picked from the Whitelist) and by the
 // self-service Demo flow (a customer generated from a random profile) —
 // both just hand it a raw customer record plus the shared applications/
-// settings state.
-export default function CustomerJourney({ customerRaw, applications, settings, onApply, onCloseApplication }) {
+// settings/products state.
+export default function CustomerJourney({ customerRaw, applications, settings, products, onApply, onCloseApplication }) {
   const [screen, setScreen] = useState('home')
   const [viewingLoanApplicationId, setViewingLoanApplicationId] = useState(null)
   const [viewingCardApplicationId, setViewingCardApplicationId] = useState(null)
@@ -25,8 +26,33 @@ export default function CustomerJourney({ customerRaw, applications, settings, o
 
   const customer = useMemo(() => withDerivedFields(customerRaw), [customerRaw])
 
+  // Which loan product a customer sees is driven by their verified income
+  // source, not a fixed product — a Wing Bank payroll customer gets the
+  // standard, settings-driven Consumer Loan; everyone else gets whichever
+  // admin-managed product matches how their income was verified.
+  const matchedProduct = resolveLoanProduct(customer.sourceOfIncome, products)
+  const loanProductName = matchedProduct?.name ?? 'Consumer Loan'
+
+  const loanCustomer = useMemo(() => {
+    if (!matchedProduct) return customer
+    return { ...customer, interestRate: matchedProduct.interestRate }
+  }, [customer, matchedProduct])
+
+  const loanSettings = useMemo(() => {
+    if (!matchedProduct) return settings
+    return {
+      ...settings,
+      maxLoanLimit: matchedProduct.maxLimit,
+      ppiRate: matchedProduct.ppiRate,
+      processingFeeWithPpi: matchedProduct.processingFeeWithPpi,
+      processingFeeWithoutPpi: matchedProduct.processingFeeWithoutPpi,
+    }
+  }, [settings, matchedProduct])
+
+  // "Active" here means outstanding — active or overdue both still carry
+  // real principal against the customer's Financial Power and caps.
   const activeApplications = useMemo(
-    () => applications.filter((a) => a.customerId === customer.id && a.status === 'active'),
+    () => applications.filter((a) => a.customerId === customer.id && isOutstanding(a.status)),
     [applications, customer.id],
   )
 
@@ -73,12 +99,13 @@ export default function CustomerJourney({ customerRaw, applications, settings, o
     <>
       {screen === 'home' && (
         <FinancialPowerHome
-          customer={customer}
+          customer={loanCustomer}
+          loanProductName={loanProductName}
           remainingFinancialPower={remainingFinancialPower}
           existingLoanExposure={existingLoanExposure}
           existingCardExposure={existingCardExposure}
           existingTotalExposure={existingTotalExposure}
-          settings={settings}
+          settings={loanSettings}
           activeApplications={activeApplications}
           onNavigate={setScreen}
           onGoToLoan={handleGoToLoan}
@@ -88,6 +115,7 @@ export default function CustomerJourney({ customerRaw, applications, settings, o
       {screen === 'active-products' && (
         <ActiveProducts
           activeApplications={activeApplications}
+          loanProductName={loanProductName}
           onBack={goHome}
           onViewLoan={handleViewLoan}
           onViewCard={handleViewCard}
@@ -95,23 +123,24 @@ export default function CustomerJourney({ customerRaw, applications, settings, o
       )}
       {screen === 'breakdown' && (
         <FinancialPowerBreakdown
-          customer={customer}
+          customer={loanCustomer}
           remainingFinancialPower={remainingFinancialPower}
           existingLoanExposure={existingLoanExposure}
           existingCardExposure={existingCardExposure}
           existingTotalExposure={existingTotalExposure}
-          settings={settings}
+          settings={loanSettings}
           onBack={goHome}
           onNavigate={setScreen}
         />
       )}
       {screen === 'loan' && (
         <LoanApplication
-          customer={customer}
+          customer={loanCustomer}
+          productName={loanProductName}
           remainingFinancialPower={remainingFinancialPower}
           existingLoanExposure={existingLoanExposure}
           existingTotalExposure={existingTotalExposure}
-          settings={settings}
+          settings={loanSettings}
           initialAmount={pendingLoanAmount}
           initialTenor={pendingLoanTenor}
           onBack={goHome}
@@ -133,7 +162,8 @@ export default function CustomerJourney({ customerRaw, applications, settings, o
       {screen === 'loan-account' && viewingLoanApplication && (
         <LoanAccount
           application={viewingLoanApplication}
-          customer={customer}
+          customer={loanCustomer}
+          productName={loanProductName}
           onBack={goHome}
           onPayoff={onCloseApplication}
         />

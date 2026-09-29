@@ -1,5 +1,5 @@
 .fp-breakdown__body {
-  padding: 4px 24px 0;
+  padding: 4px 24px 22px;
   flex: 1;
   overflow: hidden auto;
   display: flex;
@@ -102,6 +102,12 @@
   padding: 10px 12px;
 }
 
+.fp-breakdown__estimate-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .fp-breakdown__estimate-label {
   font-size: 11px;
   color: var(--color-text);
@@ -118,7 +124,8 @@
   color: var(--color-text-muted);
 }
 
-.fp-breakdown__cta {
-  padding: 14px 24px 24px;
-  flex-shrink: 0;
+.fp-breakdown__estimate-apply {
+  height: 34px;
+  font-size: 12px;
+  margin-top: 4px;
 }

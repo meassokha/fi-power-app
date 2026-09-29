@@ -85,6 +85,10 @@
   color: var(--color-text-strong);
 }
 
+.backend-results__calc-value--danger {
+  color: var(--color-danger);
+}
+
 .backend-results__divider {
   height: 1px;
   background: var(--color-border);

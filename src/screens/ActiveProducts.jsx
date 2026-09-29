@@ -2,7 +2,7 @@ import ScreenHeader from '../components/ScreenHeader'
 import { CardsIcon, ChevronRightIcon, LoanIcon } from '../components/icons'
 import './ActiveProducts.css'
 
-export default function ActiveProducts({ activeApplications, onBack, onViewLoan, onViewCard }) {
+export default function ActiveProducts({ activeApplications, loanProductName = 'Consumer Loan', onBack, onViewLoan, onViewCard }) {
   return (
     <>
       <ScreenHeader title="Active Products" onBack={onBack} />
@@ -22,7 +22,7 @@ export default function ActiveProducts({ activeApplications, onBack, onViewLoan,
                 {app.type === 'loan' ? <LoanIcon width={16} height={16} /> : <CardsIcon width={16} height={16} />}
               </span>
               <div className="active-products__info">
-                <div className="active-products__name">{app.type === 'loan' ? 'Consumer Loan' : 'Dream Card'}</div>
+                <div className="active-products__name">{app.type === 'loan' ? loanProductName : 'Dream Card'}</div>
                 <div className="active-products__meta">
                   ${app.amount.toLocaleString()}
                   {app.type === 'loan' ? ` · ${app.tenor} mo` : ' limit'} · since {app.disbursementDate}

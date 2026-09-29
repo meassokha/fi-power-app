@@ -8,12 +8,15 @@ import PhoneShell from './components/PhoneShell'
 import SettingsPanel from './components/SettingsPanel'
 import CustomerJourney from './components/CustomerJourney'
 import { GearIcon } from './components/icons'
+import { DEMO_CUSTOMER_TYPES } from './data/demoCustomerTypes'
 import { defaultSelectedCustomerId, initialCustomers } from './data/customers'
 import { initialUsers } from './data/users'
+import { initialProducts } from './data/products'
+import { initialApplications } from './data/applications'
 import { nextCustomerId } from './utils/customerRules'
 import { nextUserId } from './utils/users'
 import { DEFAULT_SETTINGS } from './utils/settings'
-import { nextApplicationId } from './utils/applications'
+import { accountNumberFor, nextApplicationId } from './utils/applications'
 import { todayIsoDate } from './utils/dates'
 
 const SETTINGS_STORAGE_KEY = 'financePower.settings'
@@ -33,9 +36,11 @@ function App() {
   const [selectedCustomerId, setSelectedCustomerId] = useState(defaultSelectedCustomerId)
   const [settings, setSettings] = useState(loadStoredSettings)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
-  const [applications, setApplications] = useState([])
+  const [applications, setApplications] = useState(initialApplications)
   const [users, setUsers] = useState(initialUsers)
-  const [customProducts, setCustomProducts] = useState([])
+  const [products, setProducts] = useState(initialProducts)
+  const [demoCustomerType, setDemoCustomerType] = useState('random')
+  const [demoResetKey, setDemoResetKey] = useState(0)
 
   useEffect(() => {
     try {
@@ -69,8 +74,10 @@ function App() {
   }
 
   function handleApply(customerId, customerName, type, fields) {
+    const id = nextApplicationId(applications)
     const application = {
-      id: nextApplicationId(applications),
+      id,
+      accountNumber: accountNumberFor(type, id),
       customerId,
       customerName,
       type,
@@ -107,13 +114,41 @@ function App() {
   }
 
   function handleCreateProduct(product) {
-    setCustomProducts((prev) => [...prev, product])
+    setProducts((prev) => [...prev, product])
+  }
+
+  function handleUpdateProduct(id, fields) {
+    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...fields } : p)))
   }
 
   return (
     <div className="app-shell">
       <header className="app-shell__nav">
         <span className="app-shell__brand">Financial Power</span>
+
+        {page === 'demo' && (
+          <div className="app-shell__demo-controls">
+            <span className="app-shell__demo-controls-label">Simulate:</span>
+            {DEMO_CUSTOMER_TYPES.map((type) => (
+              <button
+                key={type.key}
+                type="button"
+                className={`app-shell__nav-tab ${demoCustomerType === type.key ? 'is-active' : ''}`}
+                onClick={() => setDemoCustomerType(type.key)}
+              >
+                {type.label}
+              </button>
+            ))}
+            <button
+              type="button"
+              className="app-shell__nav-tab app-shell__nav-tab--reset"
+              onClick={() => setDemoResetKey((k) => k + 1)}
+            >
+              Reset
+            </button>
+          </div>
+        )}
+
         <div className="app-shell__nav-actions">
           <button
             type="button"
@@ -161,15 +196,19 @@ function App() {
             onToggleUserStatus={handleToggleUserStatus}
             settings={settings}
             onChangeSettings={setSettings}
-            customProducts={customProducts}
+            products={products}
             onCreateProduct={handleCreateProduct}
+            onUpdateProduct={handleUpdateProduct}
           />
         )}
 
         {page === 'demo' && (
           <DemoPage
+            key={demoResetKey}
+            customerType={demoCustomerType}
             applications={applications}
             settings={settings}
+            products={products}
             onCreateDemoCustomer={handleCreateDemoCustomer}
             onApply={handleApply}
             onCloseApplication={handleCloseApplication}
@@ -194,6 +233,7 @@ function App() {
                   customerRaw={selectedCustomerRaw}
                   applications={applications}
                   settings={settings}
+                  products={products}
                   onApply={(type, fields) => handleApply(selectedCustomerRaw.id, selectedCustomerRaw.name, type, fields)}
                   onCloseApplication={handleCloseApplication}
                 />
