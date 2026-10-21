@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { login } from './api'
+import GalaxyBackground from './GalaxyBackground'
 import './LoginPage.css'
 
 const ease = [0.22, 1, 0.36, 1]
@@ -22,12 +23,6 @@ const item = {
   // Keep children visible while the card waits out its exit delay (shows the check).
   exit: { opacity: 1, y: 0 },
 }
-
-const orbs = [
-  { className: 'login__orb--blue', x: [0, 60, -30, 0], y: [0, -50, 40, 0], duration: 18 },
-  { className: 'login__orb--teal', x: [0, -70, 30, 0], y: [0, 60, -40, 0], duration: 22 },
-  { className: 'login__orb--violet', x: [0, 40, -60, 0], y: [0, 70, -20, 0], duration: 26 },
-]
 
 function LoginPage({ onAuthenticated }) {
   const [email, setEmail] = useState('')
@@ -54,14 +49,7 @@ function LoginPage({ onAuthenticated }) {
 
   return (
     <div className="login">
-      {orbs.map((orb) => (
-        <motion.div
-          key={orb.className}
-          className={`login__orb ${orb.className}`}
-          animate={{ x: orb.x, y: orb.y }}
-          transition={{ duration: orb.duration, repeat: Infinity, ease: 'easeInOut' }}
-        />
-      ))}
+      <GalaxyBackground />
 
       <motion.form
         className="login__card"

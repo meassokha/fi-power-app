@@ -5,23 +5,41 @@
   place-items: center;
   padding: 20px;
   overflow: hidden;
-  background: linear-gradient(135deg, oklch(22% 0.08 262), oklch(15% 0.05 280));
+  background: radial-gradient(ellipse at 50% 40%, #121a3d 0%, #0a0d24 55%, #04050f 100%);
 }
 
-.login__orb {
+.galaxy { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.galaxy__stars { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.galaxy__nebula {
   position: absolute;
-  width: 46vmax;
-  height: 46vmax;
-  max-width: 560px;
-  max-height: 560px;
-  border-radius: 50%;
-  filter: blur(70px);
-  opacity: 0.7;
+  top: 50%;
+  left: 50%;
+  width: 140vmax;
+  height: 140vmax;
+  margin: -70vmax 0 0 -70vmax;
+  filter: blur(40px);
 }
 
-.login__orb--blue { top: -10%; left: -8%; background: oklch(58% 0.2 254); }
-.login__orb--teal { bottom: -14%; right: -6%; background: oklch(65% 0.15 200); }
-.login__orb--violet { top: 35%; left: 45%; background: oklch(55% 0.2 305); width: 30vmax; height: 30vmax; }
+.galaxy__nebula--core {
+  background:
+    radial-gradient(ellipse 22% 14% at 62% 42%, rgba(124, 77, 255, 0.5), transparent 70%),
+    radial-gradient(ellipse 26% 12% at 36% 58%, rgba(33, 150, 243, 0.42), transparent 70%),
+    radial-gradient(ellipse 18% 10% at 50% 70%, rgba(233, 80, 160, 0.28), transparent 70%);
+}
+
+.galaxy__nebula--arm {
+  background:
+    radial-gradient(ellipse 30% 9% at 30% 36%, rgba(0, 188, 212, 0.3), transparent 70%),
+    radial-gradient(ellipse 24% 10% at 70% 62%, rgba(156, 90, 255, 0.34), transparent 70%);
+}
+
+.galaxy__glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 48%, rgba(120, 110, 255, 0.22), transparent 45%);
+}
+
 
 .login__card {
   position: relative;
@@ -176,6 +194,3 @@
   border-top-color: #fff;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .login__orb { display: none; }
-}
