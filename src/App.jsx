@@ -30,7 +30,7 @@ function loadStoredSettings() {
   }
 }
 
-function App() {
+function App({ onLogout }) {
   const [page, setPage] = useState('main')
   const [customers, setCustomers] = useState(initialCustomers)
   const [selectedCustomerId, setSelectedCustomerId] = useState(defaultSelectedCustomerId)
@@ -163,6 +163,9 @@ function App() {
             onClick={() => setPage((p) => (p === 'demo' ? 'main' : 'demo'))}
           >
             {page === 'demo' ? 'HOME' : 'DEMO'}
+          </button>
+          <button type="button" className="app-shell__nav-tab" onClick={onLogout}>
+            Sign out
           </button>
           <button
             type="button"
