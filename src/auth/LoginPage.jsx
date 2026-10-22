@@ -1,27 +1,17 @@
 import { useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useAnimationControls } from 'framer-motion'
 import { login } from './api'
-import GalaxyBackground from './GalaxyBackground'
+import Lamp from './Lamp'
 import './LoginPage.css'
 
-const ease = [0.22, 1, 0.36, 1]
-
-const card = {
-  hidden: { opacity: 0, y: 40, scale: 0.94 },
-  show: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.8, ease, staggerChildren: 0.09, delayChildren: 0.25 },
-  },
-  exit: { opacity: 0, y: -30, scale: 1.04, filter: 'blur(8px)', transition: { duration: 0.6, delay: 2.1, ease } },
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.1, delayChildren: 0.7 } },
 }
 
 const item = {
-  hidden: { opacity: 0, y: 18 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease } },
-  // Keep children visible while the card waits out its exit delay (shows the check).
-  exit: { opacity: 1, y: 0 },
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 90, damping: 16 } },
 }
 
 function LoginPage({ onAuthenticated }) {
@@ -31,6 +21,8 @@ function LoginPage({ onAuthenticated }) {
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [isOn, setIsOn] = useState(false)
+  const controls = useAnimationControls()
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -40,143 +32,157 @@ function LoginPage({ onAuthenticated }) {
     try {
       const session = await login(email, password)
       setIsSuccess(true)
-      setTimeout(() => onAuthenticated(session), 2800)
+      await controls.start({
+        clipPath: 'polygon(0% 0%, 50% 50%, 100% 100%, 50% 50%)',
+        rotate: -4,
+        scale: 0.96,
+        transition: { duration: 0.55, ease: 'easeInOut' },
+      })
+      await controls.start({
+        clipPath: 'polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%)',
+        rotate: -8,
+        scale: 0.7,
+        opacity: 0,
+        transition: { duration: 0.4, ease: 'easeIn' },
+      })
+      onAuthenticated(session)
     } catch (err) {
       setError(err.message)
       setIsSubmitting(false)
+      controls.start({ x: [0, -16, 14, -10, 8, -4, 0], transition: { duration: 0.5, ease: 'easeOut' } })
     }
   }
 
   return (
     <div className="login">
-      <GalaxyBackground />
+      <motion.div
+        className="login__ambient"
+        initial={false}
+        animate={{ opacity: isOn ? 1 : 0 }}
+        transition={{ duration: 1.2 }}
+      />
 
-      <motion.form
-        className="login__card"
-        variants={card}
-        initial="hidden"
-        animate={isSuccess ? 'exit' : 'show'}
-        onSubmit={handleSubmit}
-        noValidate
-      >
-        <motion.div className="login__logo" variants={item}>
-          <AnimatePresence mode="wait" initial={false}>
-            {isSuccess ? (
-              <motion.span
-                key="check"
-                className="login__logo-mark is-success"
-                initial={{ scale: 0.4, rotate: -90, opacity: 0 }}
-                animate={{ scale: [0.4, 1.15, 1], rotate: 0, opacity: 1 }}
-                transition={{ duration: 0.9, ease }}
-              >
-                <motion.span
-                  className="login__ring"
-                  initial={{ scale: 1, opacity: 0.6 }}
-                  animate={{ scale: 1.7, opacity: 0 }}
-                  transition={{ duration: 1.4, delay: 0.8, ease: 'easeOut' }}
-                />
-                <svg className="login__check" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <motion.path
-                    d="M5.5 12.8l4.2 4.2L18.5 7.5"
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 0.8, delay: 0.7, ease }}
-                  />
-                </svg>
-              </motion.span>
-            ) : (
-              <motion.span
-                key="logo"
-                className="login__logo-mark"
-                animate={{ rotate: [0, 8, -8, 0] }}
-                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-                exit={{ scale: 0.4, opacity: 0, transition: { duration: 0.2 } }}
-              >
-                FP
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </motion.div>
+      <div className="login__lamp">
+        <Lamp isOn={isOn} onToggle={() => setIsOn((v) => !v)} />
+      </div>
 
-        <motion.h1 className="login__title" variants={item}>Welcome back</motion.h1>
-        <motion.p className="login__subtitle" variants={item}>Sign in to Financial Power</motion.p>
-
-        <motion.label className="login__field" variants={item}>
-          <span>Email</span>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@company.com"
-            autoComplete="username"
-            required
-          />
-        </motion.label>
-
-        <motion.label className="login__field" variants={item}>
-          <span>Password</span>
-          <div className="login__password">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              autoComplete="current-password"
-              required
-            />
-            <button
-              type="button"
-              className="login__toggle"
-              onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+      <div className="login__stage">
+        <AnimatePresence>
+          {!isOn && (
+            <motion.p
+              key="hint"
+              className="login__hint"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.2 } }}
+              transition={{ delay: 0.4 }}
             >
-              {showPassword ? 'Hide' : 'Show'}
-            </button>
-          </div>
-        </motion.label>
-
-        <AnimatePresence initial={false}>
-          {error && (
-            <motion.div
-              key={error}
-              className="login__error"
-              role="alert"
-              initial={{ opacity: 0, height: 0, x: 0 }}
-              animate={{ opacity: 1, height: 'auto', x: [0, -8, 8, -6, 6, 0] }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.4 }}
-            >
-              {error}
-            </motion.div>
+              Pull the cord to turn on the light
+            </motion.p>
           )}
         </AnimatePresence>
 
-        <motion.button
-          type="submit"
-          className={`login__submit ${isSuccess ? 'is-success' : ''}`}
-          variants={item}
-          whileHover={isSuccess ? undefined : { scale: 1.03 }}
-          whileTap={isSuccess ? undefined : { scale: 0.97 }}
-          disabled={isSubmitting || !email || !password}
-        >
-          <AnimatePresence mode="wait" initial={false}>
-            {isSuccess ? (
-              <motion.span key="ok" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
-                Welcome
-              </motion.span>
-            ) : isSubmitting ? (
-              <motion.span
-                key="spin"
-                className="login__spinner"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-              />
-            ) : (
-              <motion.span key="label" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>Sign in</motion.span>
-            )}
-          </AnimatePresence>
-        </motion.button>
-      </motion.form>
+        <AnimatePresence>
+          {isOn && (
+            <motion.div
+              key="card"
+              className="login__enter"
+              initial={{ opacity: 0, y: 48, scale: 0.92, filter: 'blur(14px)' }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                filter: 'blur(0px)',
+                transition: { type: 'spring', stiffness: 70, damping: 16, delay: 0.35 },
+              }}
+              exit={{ opacity: 0, y: 48, scale: 0.92, filter: 'blur(14px)', transition: { duration: 0.35 } }}
+            >
+              <motion.div animate={controls} style={{ transformOrigin: '50% 50%' }}>
+                <motion.form
+                  className="login__card"
+                  variants={stagger}
+                  initial="hidden"
+                  animate="show"
+                  onSubmit={handleSubmit}
+                  noValidate
+                >
+                  <motion.h1 className="login__title" variants={item}>Welcome back</motion.h1>
+                  <motion.p className="login__subtitle" variants={item}>Sign in to Financial Power</motion.p>
+
+                  <motion.label className="login__field" variants={item}>
+                    <span>Email</span>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@company.com"
+                      autoComplete="username"
+                      required
+                    />
+                  </motion.label>
+
+                  <motion.label className="login__field" variants={item}>
+                    <span>Password</span>
+                    <div className="login__password">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        autoComplete="current-password"
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="login__toggle"
+                        onClick={() => setShowPassword((v) => !v)}
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        {showPassword ? 'Hide' : 'Show'}
+                      </button>
+                    </div>
+                  </motion.label>
+
+                  <AnimatePresence initial={false}>
+                    {error && (
+                      <motion.div
+                        key={error}
+                        className="login__error"
+                        role="alert"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        {error}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  <motion.button
+                    type="submit"
+                    className="login__submit"
+                    variants={item}
+                    whileHover={isSubmitting ? undefined : { scale: 1.03 }}
+                    whileTap={isSubmitting ? undefined : { scale: 0.97 }}
+                    disabled={isSubmitting || isSuccess || !email || !password}
+                  >
+                    {isSubmitting ? (
+                      <motion.span
+                        className="login__spinner"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                      />
+                    ) : (
+                      <span>Sign in</span>
+                    )}
+                  </motion.button>
+                </motion.form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   )
 }
